@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2 import OperationalError
 
 dbname = 'restaurante'
 user = 'postgres'
@@ -16,13 +17,11 @@ try:
     )
     print("Conexión exitosa a la base de datos")
 
-    cur = conn.cursor()
-    cur.execute("SELECT version();")
-    version = cur.fetchone()
-    print("Versión de PostgreSQL:", version)
+    with conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT version();")
+            version = cur.fetchone()
+            print("Versión de PostgreSQL:", version)
 
-    cur.close()
-    conn.close()
-
-except psycopg2.Error as e:
+except OperationalError as e:
     print("Error al conectar a la base de datos:", e)

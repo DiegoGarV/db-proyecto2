@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import conexion as con
 
 window = tk.Tk()
 window.title("Inicio de Sesión")
@@ -51,7 +52,7 @@ def return_to_login():
     window.deiconify()
 
 
-label_username_w = tk.Label(window, text="Nombre de usuario:")
+label_username_w = tk.Label(window, text="Usuario:")
 label_username_w.pack(pady=5)
 entry_username_w = tk.Entry(window)
 entry_username_w.pack(pady=5)
@@ -69,6 +70,16 @@ btn_login.place(x= 420, y = 200)
 btn_irSignin = tk.Button(window, text = "Registrarse", command=Signin)
 btn_irSignin.place(x = 520, y = 200)
 
+label_name_sn = tk.Label(signin, text="Nombre completo:")
+label_name_sn.pack(pady=5)
+entry_name_sn = tk.Entry(signin)
+entry_name_sn.pack(pady=5)
+
+label_jobPos_sn = tk.Label(signin, text="Puesto de trabajo:")
+label_jobPos_sn.pack(pady=5)
+entry_jobPos_sn = tk.Entry(signin)
+entry_jobPos_sn.pack(pady=5)
+
 label_usuario_sn = tk.Label(signin, text="Nombre de usuario:")
 label_usuario_sn.pack(pady=5)
 entry_usuario_sn = tk.Entry(signin)
@@ -83,7 +94,6 @@ label_Confpassword_sn = tk.Label(signin, text="Confirmar Contraseña:")
 label_Confpassword_sn.pack(pady=5)
 entry_Confpassword_sn = tk.Entry(signin, show= "*")
 entry_Confpassword_sn.pack(pady=5)
-
 
 
 window.mainloop()
