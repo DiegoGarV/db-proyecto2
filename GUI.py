@@ -21,7 +21,7 @@ def Signin(): #Aqui hay que hacer que guarde en la base de datos los usuarios y 
     username = entry_usuario_sn.get()
     password = entry_password_sn.get()
     
-    btn_Signin = tk.Button(signin, text = "Registrarse", command=Signin)
+    btn_Signin = tk.Button(signin, text = "Registrarse", command=Signin) #al precionar este boton hacer lo de arriba
     btn_Signin.pack(pady = 5,padx=5)
     
 def login(): #Aqui tiene que jalar los datos de la base de datos
