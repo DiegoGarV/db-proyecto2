@@ -16,16 +16,16 @@ main_menu_window.title("Menú Principal")
 main_menu_window.geometry("1000x500")
 main_menu_window.withdraw()
 
-def Signin():
+def Signin(): #Aqui hay que hacer que guarde en la base de datos los usuarios y sus contraseñas
     signin.deiconify()
     window.withdraw()
     username = entry_usuario_sn.get()
     password = entry_password_sn.get()
     
-    btn_Signin = tk.Button(signin, text = "Registrarse", command=Signin)
+    btn_Signin = tk.Button(signin, text = "Registrarse", command=Signin) #al precionar este boton hacer lo de arriba
     btn_Signin.pack(pady = 5,padx=5)
     
-def login():
+def login(): #Aqui tiene que jalar los datos de la base de datos
     username = entry_username_w.get()
     password = entry_password_w.get()
     
@@ -34,7 +34,7 @@ def login():
     else:
         messagebox.showerror("Error de inicio de sesión", "Usuario o contraseña incorrectos")
         
-def open_main_menu():
+def open_main_menu(): #Me falta meterle para ponerle todas las opciones a otras pantallas
     window.withdraw()
     main_menu_window.deiconify()
     
@@ -51,7 +51,7 @@ def return_to_login():
     main_menu_window.withdraw()
     window.deiconify()
 
-
+#Algunos labels y botones
 label_username_w = tk.Label(window, text="Usuario:")
 label_username_w.pack(pady=5)
 entry_username_w = tk.Entry(window)
