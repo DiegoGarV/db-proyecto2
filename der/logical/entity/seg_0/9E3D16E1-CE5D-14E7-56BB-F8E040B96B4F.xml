@@ -1,0 +1,72 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="9E3D16E1-CE5D-14E7-56BB-F8E040B96B4F" name="Areas">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-13 19:54:34 UTC</createdTime>
+<ownerDesignName>der</ownerDesignName>
+<engineerTo>
+<item key="3376DC5B-1CDC-5C16-ED74-4FE96CBD0C98" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="id_area" id="B4958111-CC56-1FE4-5341-DC8776A6FD8C">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-13 19:54:55 UTC</createdTime>
+<ownerDesignName>der</ownerDesignName>
+<engineerTo>
+<item key="3376DC5B-1CDC-5C16-ED74-4FE96CBD0C98" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT011</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="nombre_area" id="9CF19C58-40FA-F9FF-D95D-6DEFCF12D127">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-13 23:58:29 UTC</createdTime>
+<ownerDesignName>der</ownerDesignName>
+<engineerTo>
+<item key="3376DC5B-1CDC-5C16-ED74-4FE96CBD0C98" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50 CHAR</dataTypeSize>
+<ownDataTypeParameters>50 CHAR,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="permite_fumadores" id="76D0AE02-B1A9-726C-2BB8-C72F8BC30890">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-13 19:56:33 UTC</createdTime>
+<ownerDesignName>der</ownerDesignName>
+<engineerTo>
+<item key="3376DC5B-1CDC-5C16-ED74-4FE96CBD0C98" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>3 CHAR</dataTypeSize>
+<ownDataTypeParameters>3 CHAR,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="E987D645-72E0-E5FF-4499-0D2E5564DBC0" name="Areas PK">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-13 19:54:57 UTC</createdTime>
+<ownerDesignName>der</ownerDesignName>
+<engineerTo>
+<item key="3376DC5B-1CDC-5C16-ED74-4FE96CBD0C98" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>B4958111-CC56-1FE4-5341-DC8776A6FD8C</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

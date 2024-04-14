@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Relation class="oracle.dbtools.crest.model.design.logical.Relation" name="personal_queja" directorySegmentName="seg_0" id="1362601A-0307-6741-9DDD-02FF37F5D53A">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:01:58 UTC</createdTime>
+<ownerDesignName>der</ownerDesignName>
+<engineerTo>
+<item key="3376DC5B-1CDC-5C16-ED74-4FE96CBD0C98" value="true"/>
+</engineerTo>
+<sourcePk>6F7A728C-E6A1-67F4-4FE8-CBE393A53F5F</sourcePk>
+<identifying>false</identifying>
+<optionalSource>true</optionalSource>
+<optionalTarget>false</optionalTarget>
+<sourceCardinality>1</sourceCardinality>
+<sourceEntity>313040B6-04F6-7BCE-B5D9-57D759207C99</sourceEntity>
+<targetCardinalityString>*</targetCardinalityString>
+<targetEntity>E29159A5-7344-1028-BB19-4C5908D0FFFC</targetEntity>
+<transferable>true</transferable>
+<deleteRule>NO ACTION</deleteRule>
+</Relation>

@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Relation class="oracle.dbtools.crest.model.design.logical.Relation" name="area_mesero" directorySegmentName="seg_0" id="011C79AE-3F55-06F8-F88D-E6C3196FD5B7">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:03:34 UTC</createdTime>
+<ownerDesignName>der</ownerDesignName>
+<engineerTo>
+<item key="3376DC5B-1CDC-5C16-ED74-4FE96CBD0C98" value="true"/>
+</engineerTo>
+<sourcePk>E987D645-72E0-E5FF-4499-0D2E5564DBC0</sourcePk>
+<identifying>false</identifying>
+<optionalSource>true</optionalSource>
+<optionalTarget>false</optionalTarget>
+<sourceCardinality>1</sourceCardinality>
+<sourceEntity>9E3D16E1-CE5D-14E7-56BB-F8E040B96B4F</sourceEntity>
+<targetCardinalityString>*</targetCardinalityString>
+<targetEntity>74355CED-256D-67C9-0B96-F349A558497E</targetEntity>
+<transferable>true</transferable>
+<deleteRule>NO ACTION</deleteRule>
+</Relation>

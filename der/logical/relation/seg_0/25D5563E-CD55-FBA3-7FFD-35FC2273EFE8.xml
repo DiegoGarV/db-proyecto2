@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Relation class="oracle.dbtools.crest.model.design.logical.Relation" name="pago_orden" directorySegmentName="seg_0" id="25D5563E-CD55-FBA3-7FFD-35FC2273EFE8">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-13 23:52:16 UTC</createdTime>
+<ownerDesignName>der</ownerDesignName>
+<engineerTo>
+<item key="3376DC5B-1CDC-5C16-ED74-4FE96CBD0C98" value="true"/>
+</engineerTo>
+<sourcePk>6BC26E4C-C306-D95D-7B5C-6503C9D07299</sourcePk>
+<identifying>false</identifying>
+<optionalSource>true</optionalSource>
+<optionalTarget>false</optionalTarget>
+<sourceCardinality>1</sourceCardinality>
+<sourceEntity>5CBEB824-111E-F83A-9E38-8EEA0D40993B</sourceEntity>
+<targetCardinalityString>*</targetCardinalityString>
+<targetEntity>9D27F923-1DF7-B2BC-E0CC-92428B3FD2A1</targetEntity>
+<transferable>true</transferable>
+<deleteRule>NO ACTION</deleteRule>
+</Relation>
