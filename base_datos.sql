@@ -83,7 +83,9 @@ CREATE TABLE pedidos (
 CREATE TABLE personal (
     id_personal      INTEGER NOT NULL,
     nombre_personal  VARCHAR(100),
-    posicion_laboral VARCHAR(100)
+    posicion_laboral VARCHAR(100),
+    usuario VARCHAR(50),
+    contraseña VARCHAR(50)
 );
 
 ALTER TABLE personal ADD CONSTRAINT personal_pk PRIMARY KEY ( id_personal );

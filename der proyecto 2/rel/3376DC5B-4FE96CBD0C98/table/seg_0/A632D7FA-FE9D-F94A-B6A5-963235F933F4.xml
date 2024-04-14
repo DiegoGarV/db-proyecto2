@@ -1,0 +1,88 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="A632D7FA-FE9D-F94A-B6A5-963235F933F4" name="mesas">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>C4E12141-CAD9-7304-8FA9-CC8553B3D387</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_mesa" id="75316698-0444-3562-EFE0-414722420662">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>3621A0D4-8B86-F767-98CC-A86F87880B22</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT011</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="cantidad_personas" id="89317B22-27E1-6C0D-793D-3A289DCE8E8B">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>CABDDB65-BAB0-519F-9AB9-63152D33F3CF</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT011</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="movilidad" id="22B01486-137D-B6E0-84F1-133BF6148A18">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>49E4D8AA-DB94-DAC3-CCA7-57EE5F05B155</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>3 CHAR</dataTypeSize>
+<ownDataTypeParameters>3 CHAR,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Areas_id_area" id="03339C1B-828D-1B78-3ABF-5D35B42EBBFB">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>AFC22C46-CC12-D7B3-3D2C-294C24E8F659</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT011</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="0BED8716-B95E-8A12-3E38-3216AB3D210E" referredColumn="FDF3FABA-549E-34EE-BC0B-4992E735BB66"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="EE59246C-6623-F383-A8EA-4D44F8BDB308" name="mesas_PK">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>38816890-3DC6-80A9-C999-36E6CDF39DE9</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="75316698-0444-3562-EFE0-414722420662"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="AD3A6170-61C0-EC3D-C6F1-436306578C2D" name="mesas_Areas_FK">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>BBB63FE3-A704-33C3-1A64-5A7690CC5F8C</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="03339C1B-828D-1B78-3ABF-5D35B42EBBFB"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

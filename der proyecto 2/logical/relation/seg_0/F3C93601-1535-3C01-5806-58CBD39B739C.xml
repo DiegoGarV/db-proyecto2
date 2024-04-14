@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Relation class="oracle.dbtools.crest.model.design.logical.Relation" name="alimentos_pedidos" directorySegmentName="seg_0" id="F3C93601-1535-3C01-5806-58CBD39B739C">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-13 23:49:43 UTC</createdTime>
+<ownerDesignName>der</ownerDesignName>
+<engineerTo>
+<item key="3376DC5B-1CDC-5C16-ED74-4FE96CBD0C98" value="true"/>
+</engineerTo>
+<sourcePk>F9D0DE83-A79D-08EB-94B8-A4B4239267D8</sourcePk>
+<identifying>false</identifying>
+<optionalSource>true</optionalSource>
+<optionalTarget>false</optionalTarget>
+<sourceCardinality>1</sourceCardinality>
+<sourceEntity>86D781FA-CA29-7506-4E76-9AA1F8E05EE9</sourceEntity>
+<targetCardinalityString>*</targetCardinalityString>
+<targetEntity>9234F1BB-F8C0-32E7-2296-837E9A7D194F</targetEntity>
+<transferable>true</transferable>
+<deleteRule>NO ACTION</deleteRule>
+</Relation>

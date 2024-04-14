@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<FKIndexAssociation class="oracle.dbtools.crest.model.design.relational.FKIndexAssociation" directorySegmentName="seg_0" id="06275F36-C9DE-54EB-9C71-73C4102FC138" containerWithKeyObject="B629E3DC-8DC3-6649-D68D-873A2911DF4D" localFKIndex="497366AE-24A0-CFAB-2A86-93067A4448B2" name="Ordenes_Meseros_FK">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>0C0F486F-CC68-950D-60F0-1AD3CB550C8F</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<referredTableLongName>Meseros</referredTableLongName>
+<deleteRule>NO ACTION</deleteRule>
+<referredTableID>27E5973E-1638-86C8-E7EA-8397B564E295</referredTableID>
+<keyObject>3C2F8BCF-85A4-D3C9-9177-05E60BDB8E22</keyObject>
+<referredKeyID>3C2F8BCF-85A4-D3C9-9177-05E60BDB8E22</referredKeyID>
+<mandatory>true</mandatory>
+<refColNames>id_personal</refColNames>
+<transferable>true</transferable>
+<rely>false</rely>
+<columnDependencyConstraintGenerateInDDL>true</columnDependencyConstraintGenerateInDDL>
+</FKIndexAssociation>

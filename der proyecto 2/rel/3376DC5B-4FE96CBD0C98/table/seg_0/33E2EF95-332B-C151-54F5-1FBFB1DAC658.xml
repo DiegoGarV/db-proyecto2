@@ -1,0 +1,80 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="33E2EF95-332B-C151-54F5-1FBFB1DAC658" name="Pagos_ordenes">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>9D27F923-1DF7-B2BC-E0CC-92428B3FD2A1</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="monto" id="AE6E470A-7A39-E624-576C-8D56E5217003">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>06A461C6-090B-4016-3CC8-8199F73E7C52</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT021</logicalDatatype>
+<dataTypePrecision>2</dataTypePrecision>
+<dataTypeScale>7</dataTypeScale>
+<ownDataTypeParameters>,2,7</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="Ordenes_id_orden" id="C38B35B4-8911-1F8E-26C4-9BD328E835C1">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>464360CC-8F0B-E69B-54CD-39A417EFADF4</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT011</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="A53BD889-FCFE-4658-C84C-D65DAB474726" referredColumn="D21C7ED7-1AF0-4649-E440-0EDC8D146215"/>
+</associations>
+</Column>
+<Column name="Pagos_id_pago" id="36C47DDB-8609-C6D1-FB47-97D931CD6D22">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>0990FBB9-23D2-EE32-40C5-16483BA532C6</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT011</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="6CED693C-FE02-3F8D-1669-0604A42ACDA3" referredColumn="6C61186D-F955-3F95-FC2A-105FD93349CE"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="A87374C8-A83D-9252-9E22-02F96D6C22B3" name="Pagos_ordenes_Ordenes_FK">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>49ADC1A0-A363-D2EE-14E1-57D256DCB3A1</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="C38B35B4-8911-1F8E-26C4-9BD328E835C1"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="9F797CE6-A3BB-59CE-7042-73F05EE369FA" name="Pagos_ordenes_Pagos_FK">
+<createdBy>dgv31</createdBy>
+<createdTime>2024-04-14 00:17:24 UTC</createdTime>
+<generatorID>25D5563E-CD55-FBA3-7FFD-35FC2273EFE8</generatorID>
+<ownerDesignName>der</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="36C47DDB-8609-C6D1-FB47-97D931CD6D22"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>
