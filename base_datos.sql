@@ -53,10 +53,11 @@ CREATE TABLE ordenes (
     estado_orden                   VARCHAR(10),
     total_orden                    FLOAT(2),
     porcentaje_propina             INTEGER,
-    id_mesa                  INTEGER NOT NULL,
+    id_mesa                        INTEGER NOT NULL,
     nit_cliente           		   INTEGER NOT NULL,
     id_personal          		   INTEGER NOT NULL,
-    id_encuesta 				   INTEGER NOT NULL
+    id_encuesta 				   INTEGER NOT NULL,
+    fecha_orden                    TIMESTAMP
 );
 
 ALTER TABLE ordenes ADD CONSTRAINT ordenes_pk PRIMARY KEY ( id_orden );
@@ -76,23 +77,23 @@ CREATE TABLE pagos_ordenes (
 
 CREATE TABLE pedidos (
     cantidad              INTEGER,
-    id_alimento INTEGER NOT NULL,
-    id_orden      INTEGER NOT NULL
+    id_alimento           INTEGER NOT NULL,
+    id_orden              INTEGER NOT NULL
 );
 
 CREATE TABLE personal (
     id_personal      INTEGER NOT NULL,
     nombre_personal  VARCHAR(100),
     posicion_laboral VARCHAR(100),
-    usuario VARCHAR(50),
-    contraseña VARCHAR(50)
+    usuario          VARCHAR(50),
+    contraseña       VARCHAR(50)
 );
 
 ALTER TABLE personal ADD CONSTRAINT personal_pk PRIMARY KEY ( id_personal );
 
 CREATE TABLE quejas (
     id_queja              INTEGER NOT NULL,
-    fecha_queja           DATE,
+    fecha_queja           TIMESTAMP,
     motivo_queja          VARCHAR(300),
     puntuacion_gravedad   INTEGER,
     nit_cliente  		  INTEGER NOT NULL,
