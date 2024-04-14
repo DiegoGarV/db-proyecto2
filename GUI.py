@@ -2,34 +2,46 @@ import tkinter as tk
 from tkinter import messagebox
 import conexion as con
 
+#Crea la interfaz gráfica
 window = tk.Tk()
 window.title("Inicio de Sesión")
 window.geometry("1000x500")
 
-signin = tk.Tk()
+signin = tk.Toplevel(window)
 signin.title("Registro")
 signin.geometry("1000x500")
 signin.withdraw()
 
-main_menu_window = tk.Tk()
+main_menu_window = tk.Toplevel(window)
 main_menu_window.title("Menú Principal")
 main_menu_window.geometry("1000x500")
 main_menu_window.withdraw()
 
-def Signin(): #Aqui hay que hacer que guarde en la base de datos los usuarios y sus contraseñas
+def signinWindow():
     signin.deiconify()
     window.withdraw()
+
+def Signin(): #Aqui hay que hacer que guarde en la base de datos los usuarios y sus contraseñas
+    name = entry_name_sn.get()
+    jobPos = entry_jobPos_sn.get()
     username = entry_usuario_sn.get()
     password = entry_password_sn.get()
     
-    btn_Signin = tk.Button(signin, text = "Registrarse", command=Signin) #al precionar este boton hacer lo de arriba
-    btn_Signin.pack(pady = 5,padx=5)
+    #Añade un usuario nuevo
+    if con.agregar_Usuario(name, jobPos, username, password):
+        messagebox.showinfo("Registro exitoso", "Usuario agregado correctamente")
+        open_main_menu()  
+    else:
+        messagebox.showerror("Error al registrar usuario", "Hubo un problema al agregar el usuario")
+
+    #btn_Signin = tk.Button(signin, text = "Registrarse", command=Signin) #al precionar este boton hacer lo de arriba
+    #btn_Signin.pack(pady = 5,padx=5)
     
 def login(): #Aqui tiene que jalar los datos de la base de datos
     username = entry_username_w.get()
     password = entry_password_w.get()
     
-    if username == "usuario" and password == "contraseña":
+    if con.verificar_Usuario(username, password):
         open_main_menu()        
     else:
         messagebox.showerror("Error de inicio de sesión", "Usuario o contraseña incorrectos")
@@ -37,8 +49,6 @@ def login(): #Aqui tiene que jalar los datos de la base de datos
 def open_main_menu(): #Me falta meterle para ponerle todas las opciones a otras pantallas
     window.withdraw()
     main_menu_window.deiconify()
-    
-    
     
     lbl_menu = tk.Label(main_menu_window, text="¡Bienvenido al Menú Principal!")
     lbl_menu.pack(pady=10)
@@ -51,7 +61,7 @@ def return_to_login():
     main_menu_window.withdraw()
     window.deiconify()
 
-#Algunos labels y botones
+#----------------------------- Log In -----------------------------------
 label_username_w = tk.Label(window, text="Usuario:")
 label_username_w.pack(pady=5)
 entry_username_w = tk.Entry(window)
@@ -67,9 +77,10 @@ btn_login = tk.Button(window, text="Iniciar Sesión", command=login)
 btn_login.place(x= 420, y = 200)
 
 
-btn_irSignin = tk.Button(window, text = "Registrarse", command=Signin)
+btn_irSignin = tk.Button(window, text = "Registrarse", command=signinWindow)
 btn_irSignin.place(x = 520, y = 200)
 
+#----------------------------- Sign In -----------------------------------
 label_name_sn = tk.Label(signin, text="Nombre completo:")
 label_name_sn.pack(pady=5)
 entry_name_sn = tk.Entry(signin)
@@ -95,8 +106,8 @@ label_Confpassword_sn.pack(pady=5)
 entry_Confpassword_sn = tk.Entry(signin, show= "*")
 entry_Confpassword_sn.pack(pady=5)
 
+btn_irSignin = tk.Button(signin, text = "Registrarse", command=Signin)
+btn_irSignin.pack(pady=5)
 
 window.mainloop()
-main_menu_window.mainloop()
-signin.mainloop()
 
