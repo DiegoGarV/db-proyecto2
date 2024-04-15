@@ -198,3 +198,39 @@ def CantAlimento(nombre_alimento):
     except psycopg2.Error as e:
         print("Error al obtener la cantidad del alimento:", e)
         return 0
+    
+def plato_mas_pedidos(fecha_inicio, fecha_final):
+    try:
+        cur = conn.cursor()
+
+        cur.execute(""" SELECT a.nombre_alimento AS plato,
+        COUNT(*) AS cantidad_pedidos
+        FROM pedidos p
+        JOIN alimentos a ON p.id_alimento = a.id_alimento
+        JOIN ordenes o ON p.id_orden = o.id_orden
+        WHERE a.tipo_alimento ILIKE 'plato'
+        AND o.fecha_orden BETWEEN %s AND %s
+        GROUP BY a.nombre_alimento
+        ORDER BY COUNT(*) DESC; """, (fecha_inicio, fecha_final))
+        platos_pedidos = cur.fetchall()
+        return platos_pedidos
+    
+    except psycopg2.Error:
+        return None
+    
+    
+def horarios_altos(fecha_inicio, fecha_final):
+    try:
+        cur = conn.cursor()
+
+        cur.execute(""" SELECT DATE_TRUNC('hour', o.fecha_orden) AS hora,
+        COUNT(*) AS cantidad_ordenes
+        FROM ordenes o
+        WHERE o.fecha_orden BETWEEN '2024-01-01' AND '2024-03-31' -- Rango de fechas
+        GROUP BY DATE_TRUNC('hour', o.fecha_orden)
+        ORDER BY COUNT(*) DESC; """, (fecha_inicio, fecha_final))
+        horas_altas = cur.fetchall()
+        return horas_altas
+    
+    except psycopg2.Error as e:
+        return None

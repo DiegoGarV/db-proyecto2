@@ -299,34 +299,27 @@ btn_registros = tk.Button(main_menu_window, text="Reportes", command=Reportes)
 btn_registros.place(x = 510, y = 200)
 btn_registros.config(font=("Arial", 10, "bold"))
 
-#----------------------------- Cocina -----------------------------------
-btn_R1 = tk.Button(reportes, text="Reporte 1", command= r1.deiconify)
-btn_R1.place(x = 400, y = 100)
-btn_R1.config(font=("Arial", 10, "bold"))
+#----------------------------- Reportes -----------------------------------
+btn_R1 = tk.Button(reportes, text="Platos más pedidos", command=r1.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R1.place(x=350, y=100)
 
-btn_R2 = tk.Button(reportes, text="Reporte 2", command= r2.deiconify)
-btn_R2.place(x = 510, y = 100)
-btn_R2.config(font=("Arial", 10, "bold"))
+btn_R2 = tk.Button(reportes, text="Horarios con más pedidos", command=r2.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R2.place(x=530, y=100)
 
-btn_R3 = tk.Button(reportes, text="Reporte 3", command= r3.deiconify)
-btn_R3.place(x = 400, y = 150)
-btn_R3.config(font=("Arial", 10, "bold"))
+btn_R3 = tk.Button(reportes, text="Tardanza en comer", command=r3.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R3.place(x=350, y=150)
 
-btn_R4 = tk.Button(reportes, text="Reporte 4", command= r4.deiconify)
-btn_R4.place(x = 510, y = 150)
-btn_R4.config(font=("Arial", 10, "bold"))
+btn_R4 = tk.Button(reportes, text="Quejas a personal", command=r4.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R4.place(x=530, y=150)
 
-btn_R5 = tk.Button(reportes, text="Reporte 5", command= r5.deiconify)
-btn_R5.place(x = 400, y = 200)
-btn_R5.config(font=("Arial", 10, "bold"))
+btn_R5 = tk.Button(reportes, text="Quejas a platos", command=r5.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R5.place(x=350, y=200)
 
-btn_R6 = tk.Button(reportes, text="Reporte 6", command= r6.deiconify)
-btn_R6.place(x=510, y=200)
-btn_R6.config(font=("Arial", 10, "bold"))
+btn_R6 = tk.Button(reportes, text="Eficiencia de meseros", command=r6.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R6.place(x=530, y=200)
 
-btn_Creg = tk.Button(reportes, text="Regresar", command=open_main_menu)
-btn_Creg.place(x= 460, y = 250)
-btn_Creg.config(font=("Arial", 10, "bold"))
+btn_Creg = tk.Button(reportes, text="Regresar", command=open_main_menu, width=20, height=2, font=("Arial", 10, "bold"))
+btn_Creg.place(x=430, y=250)
 
 #----------------------------- Cocina -----------------------------------
 
@@ -344,7 +337,7 @@ btn_Breg.place(x= 420, y = 250)
 btn_Blisto = tk.Button(bar, text = "Marcar como Listo", command=Bar_marcar_listo)
 btn_Blisto.place(x= 520, y = 250)
 
-#----------------------------- Bar -----------------------------------
+#----------------------------- Pedidos -----------------------------------
 
 
 window.mainloop()
