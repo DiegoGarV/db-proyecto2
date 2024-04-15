@@ -195,7 +195,7 @@ def CantAlimento(nombre_alimento):
     except psycopg2.Error as e:
         print("Error al obtener la cantidad del alimento:", e)
         return 0
-    
+
 def plato_mas_pedidos(fecha_inicio, fecha_final):
     try:
         cur = conn.cursor()
@@ -231,14 +231,31 @@ def horarios_altos(fecha_inicio, fecha_final):
     
     except psycopg2.Error as e:
         return None
+    
+def TiempoComida():
+    try:
+        cur = conn.cursor()
 
-
+        cur.execute("""
+        SELECT 
+            cantidad_personas,
+            AVG(tiempo_comida) AS promedio_tiempo_comida
+        FROM (
+            SELECT 
+                cantidad_personas,
+                EXTRACT(EPOCH FROM (fecha_fin - fecha_inicio)) / 60 AS tiempo_comida
+            FROM reservaciones
+            WHERE fecha_inicio >= %s AND fecha_fin <= %s
+        ) AS tiempos_por_persona
+        GROUP BY cantidad_personas
+        ORDER BY cantidad_personas;
+                    """)
+    except psycopg2.Error as e:
+        print("Error al obtener la cantidad del alimento:", e)
+        return 0
     
 def QuejasXCliente(fecha_inicio, fecha_fin):
-
-    
     try: 
-    
         cur = conn.cursor()
 
         cur.execute("""
@@ -254,6 +271,33 @@ def QuejasXCliente(fecha_inicio, fecha_fin):
             GROUP BY 
                 p.nombre_personal;
     """, (fecha_inicio, fecha_fin))
+        
+        resultados = cur.fetchall()
+        return resultados
+        
+
+    except psycopg2.Error as e: 
+        print("Error al ejecutar el query", e)
+        return 0
+    
+def PromedioComida(fecha_inicio, fecha_fin):
+    try: 
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT 
+                mesas.cantidad_personas,
+                AVG(EXTRACT(EPOCH FROM (ordenes.fecha_cierre - ordenes.fecha_apertura)) / 60) AS promedio_minutos
+            FROM 
+                ordenes
+            JOIN 
+                mesas ON ordenes.id_mesa = mesas.id_mesa
+            WHERE 
+                ordenes.fecha_apertura BETWEEN '2024/04/14 11:00' AND '2024/04/14 23:59' 
+                AND ordenes.fecha_cierre IS NOT NULL
+            GROUP BY 
+                mesas.cantidad_personas;
+        """, (fecha_inicio, fecha_fin))
         
         resultados = cur.fetchall()
         return resultados

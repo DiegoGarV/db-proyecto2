@@ -107,6 +107,26 @@ R4tree.heading("#0", text="Quejas")
 R4tree.column("#0", width=200)
 R4tree.pack(padx=10, pady=10)
 
+R3tree = ttk.Treeview(r3, columns=("Cantidad Personas"))
+R3tree.heading("#0", text="Promedio de Tiempo")
+R3tree.column("#0", width=200)
+R3tree.pack(padx=10, pady=10)
+
+def R3():
+    r3.deiconify()
+
+    con.PromedioComida(fecha_inicio=entry_fecha_inicio.get(), fecha_fin=entry_fecha_fin.get())
+    
+    resultados = con.PromedioComida(fecha_inicio=entry_fecha_inicio.get(), fecha_fin=entry_fecha_fin.get())
+
+    for item in R3tree.get_children():
+        R3tree.delete(item)
+    
+    contador = 0
+    for resultado in resultados: 
+        contador = contador +1
+        R3tree.insert("", "end", values=(resultado))
+
 def R4(): 
     r4.deiconify()
     
@@ -373,6 +393,21 @@ entry_fecha_fin = tk.Entry(r4)
 entry_fecha_fin.pack(pady=5)
 
 btn_registro4 = tk.Button(r4, text="Realizar Reporte", command=R4)
+btn_registro4.pack(pady=5)
+
+#----------------------------- R3 -----------------------------------
+
+label_fecha_inicio = tk.Label(r3, text="Fecha Inicio (YYYY/MM/DD 00:00):")
+label_fecha_inicio.pack(pady=5)
+entry_fecha_inicio = tk.Entry(r3)
+entry_fecha_inicio.pack(pady=10)
+
+label_fecha_fin = tk.Label(r3, text="Fecha Fin (YYYY/MM/DD 00:00):")
+label_fecha_fin.pack(pady=5)
+entry_fecha_fin = tk.Entry(r3)
+entry_fecha_fin.pack(pady=5)
+
+btn_registro4 = tk.Button(r3, text="Realizar Reporte", command=R3)
 btn_registro4.pack(pady=5)
 
 
