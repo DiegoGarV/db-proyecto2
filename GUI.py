@@ -618,6 +618,8 @@ def add_meal(id_orden):
     else:
         messagebox.showerror("Error al marcar como listo", "Porfavor seleccione un registro")
 
+def generate_factura(id):
+    pass
 
 #----------------------------- Log In -----------------------------------
 label_username_w = tk.Label(window, text="Usuario:")
@@ -762,8 +764,6 @@ btn_irSignin.place(x = 420, y = 305)
 
 btn_exit = tk.Button(tomaPedidos, text="Regresar", command=pedido_load)
 btn_exit.place(x = 520, y = 305)
-
-#--------------------------- Edición de alimentos ----------------------
 
 #----------------------------- R1 -----------------------------------
 label_fecha_inicioR1 = tk.Label(r1, text="Fecha Inicio (YYYY/MM/DD 00:00):")

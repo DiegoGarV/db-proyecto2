@@ -53,6 +53,7 @@ def agregar_Usuario(nombre, pos, usuario, contraseña):
     try:
         cur = conn.cursor()
 
+        contraseña = encriptacion(contraseña)
         # Verificar si el usuario ya existe en la base de datos
         cur.execute("SELECT COUNT(*) FROM personal WHERE LOWER(usuario) = %s", (usuario.lower(),))
         count = cur.fetchone()[0]
@@ -71,6 +72,10 @@ def agregar_Usuario(nombre, pos, usuario, contraseña):
         # Insertar el nuevo usuario en la tabla Personal
         cur.execute("INSERT INTO personal (id_personal, nombre_personal, posicion_laboral, usuario, contraseña) VALUES (%s, %s, %s, %s, %s)",
                     (id_personal, nombre, pos, usuario, contraseña))
+
+        if pos.lower()=='mesero':
+            cur.execute("INSERT INTO meseros (id_personal, id_area) VALUES (%s, %s)",
+                    (id_personal, random.randint(1, 5),))
 
         conn.commit()
         print("Usuario agregado correctamente con id_personal:", id_personal)
