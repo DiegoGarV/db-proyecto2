@@ -1,10 +1,12 @@
 import psycopg2
 from psycopg2 import OperationalError
 import random
+from tkinter import messagebox
 
-dbname = 'restaurante'
+
+dbname = 'Proyecto2'
 user = 'postgres'
-password = 'Basedatos1'    #Este cambienlo a la contraseña que tengan en la bd
+password = 'palocesalope152634'    #Este cambienlo a la contraseña que tengan en la bd
 host = 'localhost'
 port = '5432'
 
@@ -31,11 +33,8 @@ def verificar_Usuario(usuario, contraseña):
     try:
         cur = conn.cursor()
 
-        usuario = usuario.lower()
-        contraseña = encriptacion(contraseña)
-
         # Consulta SQL para buscar el usuario en la tabla 'personal'
-        cur.execute("SELECT COUNT(*) FROM personal WHERE LOWER(usuario) = %s AND contraseña = %s", (usuario, contraseña))
+        cur.execute("SELECT COUNT(*) FROM personal WHERE usuario = %s AND contraseña = %s", (usuario, contraseña))
         result = cur.fetchone()
 
         # Si el resultado es 1 (existe una coincidencia), las credenciales son válidas
@@ -53,12 +52,6 @@ def agregar_Usuario(nombre, pos, usuario, contraseña):
     try:
         cur = conn.cursor()
 
-        # Verificar si el usuario ya existe en la base de datos
-        cur.execute("SELECT COUNT(*) FROM personal WHERE LOWER(usuario) = %s", (usuario.lower(),))
-        count = cur.fetchone()[0]
-        if count > 0:
-            return False
-
         # Generar un id_personal único
         id_personal = random.randint(1, 200)
         while True:
@@ -67,9 +60,6 @@ def agregar_Usuario(nombre, pos, usuario, contraseña):
             if count == 0:
                 break
             id_personal = random.randint(1, 200)  # Intentar con otro id_personal único
-
-        #Encripta la contraseña
-        contraseña = encriptacion(contraseña)
 
         # Insertar el nuevo usuario en la tabla Personal
         cur.execute("INSERT INTO personal (id_personal, nombre_personal, posicion_laboral, usuario, contraseña) VALUES (%s, %s, %s, %s, %s)",
@@ -84,7 +74,6 @@ def agregar_Usuario(nombre, pos, usuario, contraseña):
         return False
     
 def tabla_cocina():
-    
     try: 
         cur = conn.cursor()
 
@@ -94,19 +83,19 @@ def tabla_cocina():
         JOIN pedidos ON ordenes.id_orden = pedidos.id_orden
         JOIN alimentos ON pedidos.id_alimento = alimentos.id_alimento
         WHERE alimentos.tipo_alimento = 'plato'
-        ORDER BY ordenes.fecha_orden ASC;
+        ORDER BY ordenes.fecha_apertura ASC;
         """)
 
         resultados = cur.fetchall()
         
-        # Lista para almacenar los nombres de los alimentos según la cantidad
+        
         alimentos_con_cantidad = []
 
-        # Recorrer los resultados y agregar el nombre del alimento tantas veces como la cantidad indicada
+      
         for nombre_alimento in resultados:
-            nombre = nombre_alimento # Obtener el nombre del alimento
+            nombre = nombre_alimento 
             cantidad = CantAlimento(nombre)
-            alimentos_con_cantidad.extend([nombre] * CantAlimento(nombre))  # Agregar el nombre según la cantidad
+            alimentos_con_cantidad.extend([nombre] * CantAlimento(nombre))  
 
         return alimentos_con_cantidad
 
@@ -115,7 +104,6 @@ def tabla_cocina():
         return False 
 
 def tabla_bar():
-    
     try: 
         cur = conn.cursor()
 
@@ -125,15 +113,15 @@ def tabla_bar():
         JOIN pedidos ON ordenes.id_orden = pedidos.id_orden
         JOIN alimentos ON pedidos.id_alimento = alimentos.id_alimento
         WHERE alimentos.tipo_alimento = 'bebida'
-        ORDER BY ordenes.fecha_orden ASC;
+        ORDER BY ordenes.fecha_apertura ASC;
         """)
 
         resultados = cur.fetchall()
         
-        # Lista para almacenar los nombres de los alimentos según la cantidad
+       
         alimentos_con_cantidad = []
 
-        # Recorrer los resultados y agregar el nombre del alimento tantas veces como la cantidad indicada
+        
         for nombre_alimento in resultados:
             nombre = nombre_alimento  
             cantidad = CantAlimento(nombre)
@@ -144,41 +132,6 @@ def tabla_bar():
     except psycopg2.Error as e:    
         print("Error al mostrar tabla:", e)
         return False 
-
-def encriptacion(contraseña):
-    diccionario = {' ':0}
-    diccionario.update({chr(i + ord('A')): i + 1 for i in range(26)})
-    diccionario.update({str(i): i + 27 for i in range(10)})
-    diccionario.update({'_':37})
-    diccionario.update({'-':38})
-    p=97
-    q=89
-    n=p*q
-    e=13
-
-    def buscarValor(letra):
-        for llave, value in diccionario.items():
-            if llave == letra:
-                return str(value).zfill(2)
-        return "Esta letra no está en el diccionario"
-    
-    contraseña=contraseña.upper()
-    palabraNumero = []
-    for i in range(0, len(contraseña), 2):
-        num1 = buscarValor(contraseña[i])
-        num2 = buscarValor(contraseña[i + 1]) if i + 1 < len(contraseña) else 00
-        palabraNumero.append(num1+num2)
-
-    palabraEncriptada = []
-    for i in palabraNumero:
-        i = int(i)
-        x = (i**e)%n
-        x = str(x).zfill(4)
-        palabraEncriptada.append(x)
-
-    contraseña_encriptada = ''.join(palabraEncriptada)
-    return contraseña_encriptada
-
 
 def CantAlimento(nombre_alimento):
     try:
@@ -191,10 +144,61 @@ def CantAlimento(nombre_alimento):
         WHERE alimentos.nombre_alimento = %s;
         """, (nombre_alimento,))
 
-        cantidad = cur.fetchone()[0]  # Obtener la cantidad del alimento
+        cantidad = cur.fetchone()[0]  
 
         return cantidad if cantidad else 0
 
     except psycopg2.Error as e:
         print("Error al obtener la cantidad del alimento:", e)
+        return 0
+
+# def TiempoComida():
+#     try:
+#         cur = conn.cursor()
+
+#         cur.execute("""
+#         SELECT 
+#             cantidad_personas,
+#             AVG(tiempo_comida) AS promedio_tiempo_comida
+#         FROM (
+#             SELECT 
+#                 cantidad_personas,
+#                 EXTRACT(EPOCH FROM (fecha_fin - fecha_inicio)) / 60 AS tiempo_comida
+#             FROM reservaciones
+#             WHERE fecha_inicio >= %s AND fecha_fin <= %s
+#         ) AS tiempos_por_persona
+#         GROUP BY cantidad_personas
+#         ORDER BY cantidad_personas;
+#                     """)
+#     except psycopg2.Error as e:
+#         print("Error al obtener la cantidad del alimento:", e)
+#         return 0
+    
+def QuejasXCliente(fecha_inicio, fecha_fin):
+
+    
+    try: 
+    
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT 
+                p.nombre_personal AS persona,
+                COUNT(q.id_queja) AS total_quejas
+            FROM 
+                quejas q
+            JOIN 
+                personal p ON q.id_personal = p.id_personal
+            WHERE 
+                q.fecha_queja BETWEEN %s AND %s
+            GROUP BY 
+                p.nombre_personal;
+    """, (fecha_inicio, fecha_fin))
+        
+        resultados = cur.fetchall()
+        return resultados
+        
+
+    except psycopg2.Error as e: 
+        print("Error al ejecutar el query", e)
         return 0
