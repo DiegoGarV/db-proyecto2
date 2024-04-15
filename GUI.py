@@ -97,6 +97,11 @@ r4.withdraw()
 r5.withdraw()
 r6.withdraw()
 
+R1tree = ttk.Treeview(r1, columns=("Nombre del plato"))
+R1tree.heading("#0", text="Platos más pedidos")
+R1tree.column("#0", width=200)
+R1tree.pack(padx=10, pady=10)
+
 R4tree = ttk.Treeview(r4, columns=("Nombre Cliente"))
 R4tree.heading("#0", text="Quejas")
 R4tree.column("#0", width=200)
@@ -116,6 +121,21 @@ def R4():
     for resultado in resultados:
         contador = contador + 1
         R4tree.insert("", "end", values=( resultado))
+
+def R1(): 
+    r1.deiconify()
+
+    resultados = con.plato_mas_pedidos(fecha_inicio=entry_fecha_inicio.get(), fecha_final=entry_fecha_fin.get())
+    if resultados!=None:
+        for item in R1tree.get_children():
+            R1tree.delete(item)
+
+        contador = 0
+        for resultado in resultados:
+            contador = contador + 1
+            R1tree.insert("", "end", values=( resultado))
+    else:
+        messagebox.showerror("Sin datos", "Parece que no hay datos entre esas fechas.")
 
 def Bar_marcar_listo():
     try:
@@ -182,8 +202,6 @@ def Signin():
         open_main_menu()  
     else:
         messagebox.showerror("Error al registrar usuario", "Hubo un problema al agregar el usuario")
-
-
     
 def login(): 
     username = entry_username_w.get()
@@ -328,6 +346,20 @@ btn_Breg.place(x= 420, y = 250)
 
 btn_Blisto = tk.Button(bar, text = "Marcar como Listo", command=Bar_marcar_listo)
 btn_Blisto.place(x= 520, y = 250)
+
+#----------------------------- R1 -----------------------------------4
+label_fecha_inicio = tk.Label(r1, text="Fecha Inicio (YYYY/MM/DD 00:00):")
+label_fecha_inicio.pack(pady=5)
+entry_fecha_inicio = tk.Entry(r1)
+entry_fecha_inicio.pack(pady=10)
+
+label_fecha_fin = tk.Label(r1, text="Fecha Fin (YYYY/MM/DD 00:00):")
+label_fecha_fin.pack(pady=5)
+entry_fecha_fin = tk.Entry(r1)
+entry_fecha_fin.pack(pady=5)
+
+btn_registro1 = tk.Button(r1, text="Realizar Reporte", command=R1)
+btn_registro1.pack(pady=5)
 
 #----------------------------- R4 -----------------------------------
 label_fecha_inicio = tk.Label(r4, text="Fecha Inicio (YYYY/MM/DD 00:00):")

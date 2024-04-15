@@ -1,12 +1,11 @@
 import psycopg2
 from psycopg2 import OperationalError
 import random
-from tkinter import messagebox
 
 
-dbname = 'Proyecto2'
+dbname = 'restaurante'
 user = 'postgres'
-password = 'palocesalope152634'    #Este cambienlo a la contraseña que tengan en la bd
+password = 'Basedatos1'    #Este cambienlo a la contraseña que tengan en la bd
 host = 'localhost'
 port = '5432'
 
@@ -160,6 +159,8 @@ def encriptacion(contraseña):
         return "Esta letra no está en el diccionario"
     
     contraseña=contraseña.upper()
+    if len(contraseña) % 2 != 0:
+        contraseña += ' '
     palabraNumero = []
     for i in range(0, len(contraseña), 2):
         num1 = buscarValor(contraseña[i])
