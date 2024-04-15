@@ -1,22 +1,66 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 import conexion as con
+import psycopg2
 
+# Pantalla Log In
 #Crea la interfaz gráfica
 window = tk.Tk()
 window.title("Inicio de Sesión")
 window.geometry("1000x500")
+window.resizable(0,0)
+window.protocol("WM_DELETE_WINDOW", quit)
 
+# Pantalla Sign In
 signin = tk.Toplevel(window)
 signin.title("Registro")
 signin.geometry("1000x500")
 signin.withdraw()
+signin.resizable(0,0)
+signin.protocol("WM_DELETE_WINDOW", quit)
 
+
+# Pantalla Menu
 main_menu_window = tk.Toplevel(window)
 main_menu_window.title("Menú Principal")
 main_menu_window.geometry("1000x500")
 main_menu_window.withdraw()
+main_menu_window.resizable(0,0)
+main_menu_window.protocol("WM_DELETE_WINDOW", quit)
 
+# Pantalla Cocina
+cocina = tk.Toplevel()
+cocina.title("Cocina")
+cocina.geometry("1000x500")
+cocina.resizable (0,0)
+cocina.withdraw()
+cocina.protocol("WM_DELETE_WINDOW", quit)
+tree = ttk.Treeview(cocina, columns=("Nombre Alimento"))
+tree.heading("#0", text="Ordenes")
+tree.column("#0", width=200)  
+tree.pack(padx=10, pady=10)
+
+def marcar_listo():
+    row = tree.focus()
+    tree.delete(row)
+
+def PantCocina():
+    main_menu_window.withdraw()
+    cocina.deiconify()
+
+    con.tabla()
+    resultados = con.tabla()
+
+
+    for item in tree.get_children():
+        tree.delete(item)
+
+    contador = 0
+    for resultado in resultados:
+        contador = contador + 1
+        tree.insert("", "end", values=(contador, resultado[0],))
+        
 def signinWindow():
     signin.deiconify()
     window.withdraw()
@@ -47,19 +91,14 @@ def login(): #Aqui tiene que jalar los datos de la base de datos
         messagebox.showerror("Error de inicio de sesión", "Usuario o contraseña incorrectos")
         
 def open_main_menu(): #Me falta meterle para ponerle todas las opciones a otras pantallas
+    cocina.withdraw()
     window.withdraw()
     main_menu_window.deiconify()
     
-    lbl_menu = tk.Label(main_menu_window, text="¡Bienvenido al Menú Principal!")
-    lbl_menu.pack(pady=10)
-    
-    btn_exit = tk.Button(main_menu_window, text="Salir", command=return_to_login)
-    btn_exit.pack(pady=5)
-    
-
 def return_to_login():
     main_menu_window.withdraw()
     window.deiconify()
+
 
 #----------------------------- Log In -----------------------------------
 label_username_w = tk.Label(window, text="Usuario:")
@@ -109,5 +148,23 @@ entry_Confpassword_sn.pack(pady=5)
 btn_irSignin = tk.Button(signin, text = "Registrarse", command=Signin)
 btn_irSignin.pack(pady=5)
 
-window.mainloop()
+#----------------------------- Menu -----------------------------------
+lbl_menu = tk.Label(main_menu_window, text="¡Bienvenido al Menú Principal!")
+lbl_menu.pack(pady=10)
 
+btn_exit = tk.Button(main_menu_window, text="Regresar", command=return_to_login)
+btn_exit.pack(pady=5)
+
+btn_cocina = tk.Button(main_menu_window, text="Cocina", command=PantCocina)
+btn_cocina.pack(pady=5)
+
+
+#----------------------------- Cocina -----------------------------------
+
+btn_reg = tk.Button(cocina, text="Regresar", command=open_main_menu)
+btn_reg.place(x= 420, y = 250)
+
+btn_listo = tk.Button(cocina, text = "Marcar como Listo", command=marcar_listo)
+btn_listo.place(x= 520, y = 250)
+
+window.mainloop()

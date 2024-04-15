@@ -2,9 +2,9 @@ import psycopg2
 from psycopg2 import OperationalError
 import random
 
-dbname = 'restaurante'
+dbname = 'Proyecto2'
 user = 'postgres'
-password = 'Basedatos1'    #Este cambienlo a la contraseña que tengan en la bd
+password = 'palocesalope152634'    #Este cambienlo a la contraseña que tengan en la bd
 host = 'localhost'
 port = '5432'
 
@@ -45,6 +45,7 @@ def verificar_Usuario(usuario, contraseña):
         print("Error al verificar las credenciales:", e)
         return False
     
+
 def agregar_Usuario(nombre, pos, usuario, contraseña):
     try:
         cur = conn.cursor()
@@ -69,3 +70,24 @@ def agregar_Usuario(nombre, pos, usuario, contraseña):
     except psycopg2.Error as e:
         print("Error al agregar usuario:", e)
         return False
+    
+def tabla():
+    
+    try: 
+        cur = conn.cursor()
+
+        cur.execute("""
+        SELECT alimentos.nombre_alimento
+        FROM ordenes
+        JOIN pedidos ON ordenes.id_orden = pedidos.id_orden
+        JOIN alimentos ON pedidos.id_alimento = alimentos.id_alimento
+        ORDER BY ordenes.fecha_orden ASC;
+        """)
+
+        resultados = cur.fetchall()
+        return resultados
+
+
+    except psycopg2.Error as e:    
+        print("Error al agregar usuario:", e)
+        return False 
