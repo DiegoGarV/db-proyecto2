@@ -4,6 +4,8 @@ from tkinter import ttk
 import conexion as con
 from datetime import datetime
 
+usuario_fin = ''
+data_pedidos = ''
 
 #---------------------- Pantalla Log In ----------------------
 window = tk.Tk()
@@ -54,6 +56,30 @@ Bartree.heading("Nombre", text="Nombre bebida")
 Bartree.heading("Num", text="Número cola")
 Bartree.column("#0", width=0)
 Bartree.pack(padx=10, pady=10)
+
+#---------------------- Pantalla Pedidos ----------------------
+pedidos = tk.Toplevel()
+pedidos.title("Pedidos")
+pedidos.geometry("1000x500")
+pedidos.resizable(0, 0)
+pedidos.withdraw()
+pedidos.protocol("WM_DELETE_WINDOW", quit)
+
+#---------------------- Pantalla Toma de Pedidos ----------------------
+tomaPedidos = tk.Toplevel()
+tomaPedidos.title("Toma de Pedidos")
+tomaPedidos.geometry("1000x500")
+tomaPedidos.resizable(0,0)
+tomaPedidos.withdraw()
+tomaPedidos.protocol("WM_DELETE_WINDOW", quit)
+
+#---------------------- Pantalla Pedidos Cerrados ----------------------
+pedidosCerrados = tk.Toplevel()
+pedidosCerrados.title("Pedidos Cerrados")
+pedidosCerrados.geometry("1000x500")
+pedidosCerrados.resizable(0,0)
+pedidosCerrados.withdraw()
+pedidosCerrados.protocol("WM_DELETE_WINDOW", quit)
 
 #---------------------- Pantalla Menu Reportes ----------------------
 reportes = tk.Toplevel()
@@ -255,6 +281,7 @@ def signinWindow():
     window.withdraw()
 
 def Signin(): 
+    global usuario_fin
     name = entry_name_sn.get()
     jobPos = entry_jobPos_sn.get()
     username = entry_usuario_sn.get()
@@ -263,15 +290,18 @@ def Signin():
     #Añade un usuario nuevo
     if con.agregar_Usuario(name, jobPos, username, password):
         messagebox.showinfo("Registro exitoso", "Usuario agregado correctamente")
+        usuario_fin = username
         open_main_menu()  
     else:
         messagebox.showerror("Error al registrar usuario", "Hubo un problema al agregar el usuario")
     
 def login(): 
+    global usuario_fin
     username = entry_username_w.get()
     password = entry_password_w.get()
     
     if con.verificar_Usuario(username, password):
+        usuario_fin = username
         open_main_menu()        
     else:
         messagebox.showerror("Error de inicio de sesión", "Usuario o contraseña incorrectos")
@@ -290,6 +320,7 @@ def open_main_menu():
     reportes.withdraw()
     bar.withdraw()
     cocina.withdraw()
+    pedidos.withdraw()
     window.withdraw()
     main_menu_window.deiconify()
     
@@ -321,6 +352,187 @@ def r5_load():
 def r6_load():
     reportes.withdraw()
     r6.deiconify()
+
+
+def pedido_load():
+    global data_pedidos
+
+    # Ocultar otras ventanas y mostrar la ventana de pedidos
+    main_menu_window.withdraw()
+    pedidosCerrados.withdraw()
+    tomaPedidos.withdraw()
+    pedidos.deiconify()
+
+    # Obtener los datos de los pedidos
+    obtener_pedidos()
+
+    # Limpiar la pantalla de pedidos antes de agregar nuevos datos
+    for widget in pedidos.winfo_children():
+        widget.destroy()
+
+    # Frame principal para organizar widgets
+    main_frame = tk.Frame(pedidos)
+    main_frame.pack(fill=tk.BOTH, expand=True)
+
+    # Frame para los botones
+    btn_frame = tk.Frame(main_frame)
+    btn_frame.pack(side=tk.TOP, pady=10)
+
+    # Botón para regresar
+    btn_regresar = tk.Button(btn_frame, text="Regresar", command=open_main_menu)
+    btn_regresar.pack(side=tk.LEFT, padx=10)
+
+    # Botón para crear pedido
+    btn_crear_pedido = tk.Button(btn_frame, text="Crear Pedido", command=rev_accion)
+    btn_crear_pedido.pack(side=tk.LEFT, padx=10)
+
+    # Botón para ver pedidos cerrados
+    btn_pedidos_cerrados = tk.Button(btn_frame, text="Pedidos Cerrados", command=pedidos_cerrados_load)
+    btn_pedidos_cerrados.pack(side=tk.LEFT, padx=10)
+
+    # Crear un canvas dentro del frame principal
+    canvas = tk.Canvas(main_frame)
+    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    # Agregar un scrollbar al canvas
+    scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    # Configurar el canvas para que se pueda desplazar con el scrollbar
+    canvas.configure(yscrollcommand=scrollbar.set)
+    canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+    # Frame para mostrar las tarjetas de los pedidos
+    pedidos_frame = tk.Frame(canvas)
+
+    # Agregar el frame de pedidos al canvas
+    canvas.create_window((0,0), window=pedidos_frame, anchor="nw")
+
+    for pedido in data_pedidos:
+        card_frame = ttk.Frame(pedidos_frame, relief=tk.RAISED, borderwidth=2, padding=(10, 10))
+        card_frame.pack(pady=10, fill=tk.BOTH)
+
+        fecha1 = pedido[8].strftime("%Y/%m/%d %H:%M")
+        fecha2 = pedido[9].strftime("%Y/%m/%d %H:%M") if pedido[9] is not None else '---'
+
+        # Etiquetas con datos y Botones para Editar e Imprimir
+        if pedido[1] == 'abierto':
+            ttk.Label(card_frame, text=f"ID Pedido: {pedido[0]}").pack(anchor=tk.W)
+            ttk.Label(card_frame, text=f"Fecha Apertura: {fecha1}").pack(anchor=tk.W)
+            ttk.Label(card_frame, text=f"Fecha Cierre: {fecha2}").pack(anchor=tk.W)
+            ttk.Label(card_frame, text=f"Número de Mesa: {pedido[4]}").pack(anchor=tk.W)
+            
+            btn_editar = ttk.Button(card_frame, text="Editar", command=lambda id=pedido[0]: open_order_details(id))
+            btn_editar.pack(side=tk.LEFT, padx=10)
+
+            btn_imprimir = ttk.Button(card_frame, text="Imprimir", command=lambda id=pedido[0]: generate_factura(id))
+            btn_imprimir.pack(side=tk.RIGHT, padx=10)
+
+def tomaPedido_load():
+    pedidos.withdraw()
+    tomaPedidos.deiconify()
+
+def rev_accion():
+    global usuario_fin
+    #print(usuario_fin)
+    revision = con.ver_pos(usuario_fin)
+    #print(revision[0][0])
+    if revision is not None and revision:
+        if revision[0][0] == 'mesero':
+            tomaPedido_load()
+        else:
+            messagebox.showerror("Puesto incorrecto", "No estas capacitado para tomar pedidos.")
+    else:
+        messagebox.showerror("Error", "Error al conseguir el puesto laboral")
+
+def crear_pedido():
+    global usuario_fin
+    mesa = entry_mesa.get()
+    nit = entry_nit.get()
+    nombreC = entry_nombreC.get()
+    direccionC = entry_direccionC.get()
+    if mesa=='' or nit=='' or nombreC=='' or direccionC=='':
+        messagebox.showerror("Faltan datos", "Todas las casillas deben de tener información")
+    else:
+        if con.crear_pedido(mesa, nit, nombreC, direccionC, usuario_fin):
+            messagebox.showinfo("Orden exitosa", "La orden se ha registrado correctamente")
+            pedido_load()
+        else:
+            messagebox.showinfo("Error al tomar la orden", "No se ha podido registrar la orden correctamente")
+
+
+def pedidos_cerrados_load():
+    pedidos.withdraw()
+    pedidosCerrados.deiconify()
+    obtener_pedidos()
+
+    # Limpiar la pantalla de pedidos antes de agregar nuevos datos
+    for widget in pedidos.winfo_children():
+        widget.destroy()
+
+    # Frame principal para organizar widgets
+    main_frame = tk.Frame(pedidosCerrados)
+    main_frame.pack(fill=tk.BOTH, expand=True)
+
+    # Frame para los botones
+    btn_frame = tk.Frame(main_frame)
+    btn_frame.pack(side=tk.TOP, pady=10)
+
+    # Botón para regresar
+    btn_regresar = tk.Button(btn_frame, text="Regresar", command=pedido_load)
+    btn_regresar.pack(side=tk.LEFT, padx=10)
+
+    # Crear un canvas dentro del frame principal
+    canvas = tk.Canvas(main_frame)
+    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    # Agregar un scrollbar al canvas
+    scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    # Configurar el canvas para que se pueda desplazar con el scrollbar
+    canvas.configure(yscrollcommand=scrollbar.set)
+    canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+    # Frame para mostrar las tarjetas de los pedidos
+    pedidos_frame = tk.Frame(canvas)
+
+    # Agregar el frame de pedidos al canvas
+    canvas.create_window((0,0), window=pedidos_frame, anchor="nw")
+
+    for pedido in data_pedidos:
+        card_frame = ttk.Frame(pedidos_frame, relief=tk.RAISED, borderwidth=2, padding=(10, 10))
+        card_frame.pack(pady=10, fill=tk.BOTH)
+
+        fecha1 = pedido[8].strftime("%Y/%m/%d %H:%M")
+        fecha2 = pedido[9].strftime("%Y/%m/%d %H:%M") if pedido[9] is not None else '---'
+
+        # Etiquetas con datos y Botones para Editar e Imprimir
+        if pedido[1] == 'cerrado':
+            ttk.Label(card_frame, text=f"ID Pedido: {pedido[0]}").pack(anchor=tk.W)
+            ttk.Label(card_frame, text=f"Fecha Apertura: {fecha1}").pack(anchor=tk.W)
+            ttk.Label(card_frame, text=f"Fecha Cierre: {fecha2}").pack(anchor=tk.W)
+            ttk.Label(card_frame, text=f"Número de Mesa: {pedido[4]}").pack(anchor=tk.W)
+
+            btn_imprimir = ttk.Button(card_frame, text="Imprimir", command=lambda id=pedido[0]: generate_factura(id))
+            btn_imprimir.pack(side=tk.BOTTOM, padx=10)
+
+def obtener_pedidos():
+    global data_pedidos
+    resultado = con.obtener_pedidos()
+    if resultado is not None and resultado:
+        data_pedidos = resultado
+        #print(data_pedidos)
+    else:
+        messagebox.showerror("Error", "Error al obtener los datos de las ordenes")
+
+def open_order_details(id):
+    pass
+
+def generate_factura(id):
+    pass
+
+
 
 #----------------------------- Log In -----------------------------------
 label_username_w = tk.Label(window, text="Usuario:")
@@ -393,7 +605,7 @@ btn_bar = tk.Button(main_menu_window, text="    Bar    ", command=PantBar)
 btn_bar.place(x = 410, y = 200)
 btn_bar.config(font=("Arial", 10, "bold"))
 
-btn_pedido = tk.Button(main_menu_window, text=" Pedido ")
+btn_pedido = tk.Button(main_menu_window, text=" Pedido ", command=pedido_load)
 btn_pedido.place(x = 410, y = 150)
 btn_pedido.config(font=("Arial", 10, "bold"))
 
@@ -439,7 +651,34 @@ btn_Breg.place(x= 420, y = 250)
 btn_Blisto = tk.Button(bar, text = "Marcar como Listo", command=Bar_marcar_listo)
 btn_Blisto.place(x= 520, y = 250)
 
-#----------------------------- R1 -----------------------------------4
+#----------------------------- Toma pedidos -----------------------------------
+label_mesa = tk.Label(tomaPedidos, text="Número de mesa:")
+label_mesa.pack(pady=5)
+entry_mesa = tk.Entry(tomaPedidos)
+entry_mesa.pack(pady=5)
+
+label_nit = tk.Label(tomaPedidos, text="NIT del cliente:")
+label_nit.pack(pady=5)
+entry_nit = tk.Entry(tomaPedidos)
+entry_nit.pack(pady=5)
+
+label_nombreC = tk.Label(tomaPedidos, text="Nombre del cliente:")
+label_nombreC.pack(pady=5)
+entry_nombreC = tk.Entry(tomaPedidos)
+entry_nombreC.pack(pady=5)
+
+label_direccionC = tk.Label(tomaPedidos, text="Dirección del cliente:")
+label_direccionC.pack(pady=5)
+entry_direccionC = tk.Entry(tomaPedidos)
+entry_direccionC.pack(pady=5)
+
+btn_irSignin = tk.Button(tomaPedidos, text = "Confirmar", command=crear_pedido)
+btn_irSignin.place(x = 420, y = 305)
+
+btn_exit = tk.Button(tomaPedidos, text="Regresar", command=pedido_load)
+btn_exit.place(x = 520, y = 305)
+
+#----------------------------- R1 -----------------------------------
 label_fecha_inicioR1 = tk.Label(r1, text="Fecha Inicio (YYYY/MM/DD 00:00):")
 label_fecha_inicioR1.pack(pady=5)
 entry_fecha_inicioR1 = tk.Entry(r1)

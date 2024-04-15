@@ -217,7 +217,6 @@ def plato_mas_pedidos(fecha_inicio, fecha_final):
         print("Error al obtener el plato más pedido:", e)
         return None
     
-    
 def horarios_altos(fecha_inicio, fecha_final):
     try:
         cur = conn.cursor()
@@ -289,3 +288,96 @@ def PromedioComida(fecha_inicio, fecha_fin):
     except psycopg2.Error as e: 
         print("Error al ejecutar el query", e)
         return 0
+    
+def ver_pos(usuario):
+    try:
+        cur = conn.cursor()
+
+        cur.execute(""" SELECT posicion_laboral
+                        FROM personal
+                        WHERE LOWER(usuario) = %s;
+                    """, (usuario.lower(),))
+        posicion = cur.fetchall()
+        #print(posicion)
+        return posicion
+
+    except psycopg2.Error as e:
+        print(f"Error al obtener la posición laboral de {usuario}:", e)
+        return None
+
+def crear_pedido(mesa, nit, nombre, direccion, usuario):
+    try:
+        cur = conn.cursor()
+
+        cur.execute("SELECT COUNT(*) FROM clientes WHERE nit_cliente = %s", (nit,))
+        existe_cliente = cur.fetchone()[0]
+
+        if existe_cliente > 0:
+            pass
+        else:
+            cur.execute("""INSERT INTO clientes (nit_cliente, nombre_cliente, direccion_cliente) 
+                           VALUES (%s, %s, %s)""", (nit, nombre, direccion))
+
+        cur.execute(""" SELECT id_personal
+                        FROM personal
+                        WHERE LOWER(usuario) = %s;
+                    """, (usuario.lower(),))
+        id_personal = cur.fetchone()
+
+        id_orden = random.randint(1, 9999)
+        id_encuesta = random.randint(1, 9999)
+        while True:
+            cur.execute("SELECT COUNT(*) FROM ordenes WHERE id_orden = %s", (id_orden,))
+            count = cur.fetchone()[0]
+            if count == 0:
+                break
+            id_orden = random.randint(1, 9999)
+        
+        while True:
+            cur.execute("SELECT COUNT(*) FROM encuestas_servicio WHERE id_encuesta = %s", (id_encuesta,))
+            count = cur.fetchone()[0]
+            if count == 0:
+                break
+            id_encuesta = random.randint(1, 9999)
+
+        cur.execute("""INSERT INTO encuestas_servicio (id_encuesta, puntuacion_amabilidad, puntuacion_exactitud) 
+                       VALUES (%s, %s, %s);""",
+                    (id_encuesta, random.randint(1, 5), random.randint(1, 5),))
+
+        cur.execute("""INSERT INTO ordenes (id_orden, estado_orden, total_orden, porcentaje_propina, id_mesa, nit_cliente, id_personal, id_encuesta, fecha_apertura, fecha_cierre) 
+                       VALUES (%s, 'abierto', NULL, 15, %s, %s, %s, %s, CURRENT_TIMESTAMP, NULL);""",
+                    (id_orden, mesa, nit, id_personal, id_encuesta))
+
+        conn.commit()
+        print("Orden agregada correctamente con id_orden:", id_orden)
+        return True
+
+    except psycopg2.Error as e:
+        print("Error al agregar usuario:", e)
+        return False
+
+def obtener_pedidos():
+    try:
+        cur = conn.cursor()
+
+        cur.execute("""select * from ordenes;""")
+        pedidos = cur.fetchall()
+        #print(pedidos)
+        return pedidos
+
+    except psycopg2.Error as e:
+        print("Error al obtener las ordenes:", e)
+        return None
+    
+def obtener_menu():
+    try:
+        cur = conn.cursor()
+
+        cur.execute("""select * from alimentos;""")
+        menu = cur.fetchall()
+        #print(menu)
+        return menu
+
+    except psycopg2.Error as e:
+        print("Error al obtener el menu:", e)
+        return None
