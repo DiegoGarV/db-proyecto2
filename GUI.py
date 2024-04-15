@@ -2,17 +2,17 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 import conexion as con
+from datetime import datetime
 
 
-# Pantalla Log In
-#Crea la interfaz gráfica
+#---------------------- Pantalla Log In ----------------------
 window = tk.Tk()
 window.title("Inicio de Sesión")
 window.geometry("1000x500")
 window.resizable(0,0)
 window.protocol("WM_DELETE_WINDOW", quit)
 
-# Pantalla Sign In
+#---------------------- Pantalla Sign In ----------------------
 signin = tk.Toplevel(window)
 signin.title("Registro")
 signin.geometry("1000x500")
@@ -21,7 +21,7 @@ signin.resizable(0,0)
 signin.protocol("WM_DELETE_WINDOW", quit)
 
 
-# Pantalla Menu
+#---------------------- Pantalla Menu ----------------------
 main_menu_window = tk.Toplevel(window)
 main_menu_window.title("Menú Principal")
 main_menu_window.geometry("1000x500")
@@ -29,31 +29,33 @@ main_menu_window.withdraw()
 main_menu_window.resizable(0,0)
 main_menu_window.protocol("WM_DELETE_WINDOW", quit)
 
-# Pantalla Cocina
+#---------------------- Pantalla Cocina ----------------------
 cocina = tk.Toplevel()
 cocina.title("Cocina")
 cocina.geometry("1000x500")
 cocina.resizable (0,0)
 cocina.withdraw()
 cocina.protocol("WM_DELETE_WINDOW", quit)
-tree = ttk.Treeview(cocina, columns=("Nombre Plato"))
-tree.heading("#0", text="Ordenes")
-tree.column("#0", width=200)  
-tree.pack(padx=10, pady=10)
+Kitchentree = ttk.Treeview(cocina, columns=("Nombre", "Num"))
+Kitchentree.heading("Nombre", text="Nombre plato")
+Kitchentree.heading("Num", text="Número cola")
+Kitchentree.column("#0", width=200)  
+Kitchentree.pack(padx=10, pady=10)
 
-# Pantalla Bar
+#---------------------- Pantalla Bar ----------------------
 bar = tk.Toplevel()
 bar.title("Bar")
 bar.geometry("1000x500")
 bar.resizable(0,0)
 bar.withdraw()
 bar.protocol("WM_DELETE_WINDOW", quit)
-Bartree = ttk.Treeview(bar, columns=("Nombre Bebida"))
-Bartree.heading("#0", text="Ordenes")
-Bartree.column("#0", width=200)
+Bartree = ttk.Treeview(bar, columns=("Nombre", "Num"))
+Bartree.heading("Nombre", text="Nombre bebida")
+Bartree.heading("Num", text="Número cola")
+Bartree.column("#0", width=0)
 Bartree.pack(padx=10, pady=10)
 
-# Pantalla Menu Reportes
+#---------------------- Pantalla Menu Reportes ----------------------
 reportes = tk.Toplevel()
 reportes.title("Reportes")
 reportes.geometry("1000x500")
@@ -61,7 +63,7 @@ reportes.resizable(0,0)
 reportes.withdraw()
 reportes.protocol("WM_DELETE_WINDOW", quit)
 
-# Pantallas Reportes
+#---------------------- Pantallas Reportes ----------------------
 r1 = tk.Toplevel()
 r2 = tk.Toplevel()
 r3 = tk.Toplevel()
@@ -97,27 +99,86 @@ r4.withdraw()
 r5.withdraw()
 r6.withdraw()
 
-R1tree = ttk.Treeview(r1, columns=("Nombre del plato"))
-R1tree.heading("#0", text="Platos más pedidos")
-R1tree.column("#0", width=200)
+r1.protocol("WM_DELETE_WINDOW", quit)
+r2.protocol("WM_DELETE_WINDOW", quit)
+r3.protocol("WM_DELETE_WINDOW", quit)
+r4.protocol("WM_DELETE_WINDOW", quit)
+r5.protocol("WM_DELETE_WINDOW", quit)
+r6.protocol("WM_DELETE_WINDOW", quit)
+
+R1tree = ttk.Treeview(r1, columns=("Plato", "Cantidad de Pedidos"))
+R1tree.heading("Plato", text="Nombre del plato")
+R1tree.heading("Cantidad de Pedidos", text="Cantidad de Pedidos")
+R1tree.column("#0", width=0)
 R1tree.pack(padx=10, pady=10)
 
-R4tree = ttk.Treeview(r4, columns=("Nombre Cliente"))
-R4tree.heading("#0", text="Quejas")
-R4tree.column("#0", width=200)
-R4tree.pack(padx=10, pady=10)
+R2tree = ttk.Treeview(r2, columns=("Hora", "Cantidad de Pedidos"))
+R2tree.heading("Hora", text="Hora")
+R2tree.heading("Cantidad de Pedidos", text="Cantidad de Pedidos")
+R2tree.column("#0", width=0)
+R2tree.pack(padx=10, pady=10)
 
 R3tree = ttk.Treeview(r3, columns=("Cantidad Personas"))
 R3tree.heading("#0", text="Promedio de Tiempo")
 R3tree.column("#0", width=200)
 R3tree.pack(padx=10, pady=10)
 
-def R3():
-    r3.deiconify()
+R4tree = ttk.Treeview(r4, columns=("Nombre Cliente"))
+R4tree.heading("#0", text="Quejas")
+R4tree.column("#0", width=200)
+R4tree.pack(padx=10, pady=10)
 
-    con.PromedioComida(fecha_inicio=entry_fecha_inicio.get(), fecha_fin=entry_fecha_fin.get())
+#---------------------- Funciones --------------------------
+def R1(): 
+    fecha_inicio = entry_fecha_inicioR1.get()
+    fecha_final=entry_fecha_finR1.get()
+
+    fecha1 = datetime.strptime(fecha_inicio, "%Y/%m/%d %H:%M")
+    fecha2 = datetime.strptime(fecha_final, "%Y/%m/%d %H:%M")
+
+    if fecha1 <= fecha2:
+        resultados = con.plato_mas_pedidos(fecha_inicio, fecha_final)
+        
+        if resultados is not None and resultados:
+            for item in R1tree.get_children():
+                R1tree.delete(item)
+
+            contador = 0
+            for resultado in resultados:
+                contador = contador + 1
+                R1tree.insert("", "end", values=( resultado))
+        else:
+            messagebox.showerror("Sin datos", "Parece que no hay datos entre esas fechas.")
+    else:
+        messagebox.showerror("Error al ingresar las fechas", "La fecha inicial no puede ser posterior a la fecha final.")
+
+def R2(): 
+    fecha_inicio = entry_fecha_inicioR2.get()
+    fecha_final=entry_fecha_finR2.get()
+
+    fecha1 = datetime.strptime(fecha_inicio, "%Y/%m/%d %H:%M")
+    fecha2 = datetime.strptime(fecha_final, "%Y/%m/%d %H:%M")
+
+    if fecha1 <= fecha2:
+        resultados = con.horarios_altos(fecha_inicio, fecha_final)
+        
+        if resultados is not None and resultados:
+            for item in R1tree.get_children():
+                R1tree.delete(item)
+
+            contador = 0
+            for resultado in resultados:
+                contador = contador + 1
+                R2tree.insert("", "end", values=( resultado))
+        else:
+            messagebox.showerror("Sin datos", "Parece que no hay datos entre esas fechas.")
+    else:
+        messagebox.showerror("Error al ingresar las fechas", "La fecha inicial no puede ser posterior a la fecha final.")
+
+def R3():
+    con.PromedioComida(fecha_inicio=entry_fecha_inicioR3.get(), fecha_fin=entry_fecha_finR3.get())
     
-    resultados = con.PromedioComida(fecha_inicio=entry_fecha_inicio.get(), fecha_fin=entry_fecha_fin.get())
+    resultados = con.PromedioComida(fecha_inicio=entry_fecha_inicioR3.get(), fecha_fin=entry_fecha_finR3.get())
 
     for item in R3tree.get_children():
         R3tree.delete(item)
@@ -128,11 +189,9 @@ def R3():
         R3tree.insert("", "end", values=(resultado))
 
 def R4(): 
-    r4.deiconify()
-    
-    con.QuejasXCliente(fecha_inicio=entry_fecha_inicio.get(), fecha_fin=entry_fecha_fin.get())
+    con.QuejasXCliente(fecha_inicio=entry_fecha_inicioR4.get(), fecha_fin=entry_fecha_finR4.get())
 
-    resultados = con.QuejasXCliente(fecha_inicio=entry_fecha_inicio.get(), fecha_fin=entry_fecha_fin.get())
+    resultados = con.QuejasXCliente(fecha_inicio=entry_fecha_inicioR4.get(), fecha_fin=entry_fecha_finR4.get())
 
     for item in R4tree.get_children():
         R4tree.delete(item)
@@ -141,21 +200,6 @@ def R4():
     for resultado in resultados:
         contador = contador + 1
         R4tree.insert("", "end", values=( resultado))
-
-def R1(): 
-    r1.deiconify()
-
-    resultados = con.plato_mas_pedidos(fecha_inicio=entry_fecha_inicio.get(), fecha_final=entry_fecha_fin.get())
-    if resultados!=None:
-        for item in R1tree.get_children():
-            R1tree.delete(item)
-
-        contador = 0
-        for resultado in resultados:
-            contador = contador + 1
-            R1tree.insert("", "end", values=( resultado))
-    else:
-        messagebox.showerror("Sin datos", "Parece que no hay datos entre esas fechas.")
 
 def Bar_marcar_listo():
     try:
@@ -184,8 +228,8 @@ def PantBar():
 
 def Cocina_marcar_listo():
     try:
-        row = tree.focus()
-        tree.delete(row)
+        row = Kitchentree.focus()
+        Kitchentree.delete(row)
     except: 
         messagebox.showerror("Error al marcar como listo", "Porfavor seleccione un registro")
         return False 
@@ -198,13 +242,13 @@ def PantCocina():
     resultados = con.tabla_cocina()
 
 
-    for item in tree.get_children():
-        tree.delete(item)
+    for item in Kitchentree.get_children():
+        Kitchentree.delete(item)
 
     contador = 0
     for resultado in resultados:
         contador = contador + 1
-        tree.insert("", "end", values=(contador, resultado[0],))
+        Kitchentree.insert("", "end", values=(contador, resultado[0],))
         
 def signinWindow():
     signin.deiconify()
@@ -234,6 +278,12 @@ def login():
         
 def Reportes():
     main_menu_window.withdraw()
+    r1.withdraw()
+    r2.withdraw()
+    r3.withdraw()
+    r4.withdraw()
+    r5.withdraw()
+    r6.withdraw()
     reportes.deiconify()
 
 def open_main_menu(): 
@@ -248,7 +298,29 @@ def return_to_login():
     main_menu_window.withdraw()
     window.deiconify()
 
+def r1_load():
+    reportes.withdraw()
+    r1.deiconify()
 
+def r2_load():
+    reportes.withdraw()
+    r2.deiconify()
+
+def r3_load():
+    reportes.withdraw()
+    r3.deiconify()
+
+def r4_load():
+    reportes.withdraw()
+    r4.deiconify()
+
+def r5_load():
+    reportes.withdraw()
+    r5.deiconify()
+
+def r6_load():
+    reportes.withdraw()
+    r6.deiconify()
 
 #----------------------------- Log In -----------------------------------
 label_username_w = tk.Label(window, text="Usuario:")
@@ -330,22 +402,22 @@ btn_registros.place(x = 510, y = 200)
 btn_registros.config(font=("Arial", 10, "bold"))
 
 #----------------------------- Reportes -----------------------------------
-btn_R1 = tk.Button(reportes, text="Platos más pedidos", command=r1.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R1 = tk.Button(reportes, text="Platos más pedidos", command=r1_load, width=20, height=2, font=("Arial", 10, "bold"))
 btn_R1.place(x=350, y=100)
 
-btn_R2 = tk.Button(reportes, text="Horarios con más pedidos", command=r2.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R2 = tk.Button(reportes, text="Horas pico", command=r2_load, width=20, height=2, font=("Arial", 10, "bold"))
 btn_R2.place(x=530, y=100)
 
-btn_R3 = tk.Button(reportes, text="Tardanza en comer", command=r3.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R3 = tk.Button(reportes, text="Tardanza en comer", command=r3_load, width=20, height=2, font=("Arial", 10, "bold"))
 btn_R3.place(x=350, y=150)
 
-btn_R4 = tk.Button(reportes, text="Quejas a personal", command=r4.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R4 = tk.Button(reportes, text="Quejas a personal", command=r4_load, width=20, height=2, font=("Arial", 10, "bold"))
 btn_R4.place(x=530, y=150)
 
-btn_R5 = tk.Button(reportes, text="Quejas a platos", command=r5.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R5 = tk.Button(reportes, text="Quejas a platos", command=r5_load, width=20, height=2, font=("Arial", 10, "bold"))
 btn_R5.place(x=350, y=200)
 
-btn_R6 = tk.Button(reportes, text="Eficiencia de meseros", command=r6.deiconify, width=20, height=2, font=("Arial", 10, "bold"))
+btn_R6 = tk.Button(reportes, text="Eficiencia de meseros", command=r6_load, width=20, height=2, font=("Arial", 10, "bold"))
 btn_R6.place(x=530, y=200)
 
 btn_Creg = tk.Button(reportes, text="Regresar", command=open_main_menu, width=20, height=2, font=("Arial", 10, "bold"))
@@ -368,47 +440,71 @@ btn_Blisto = tk.Button(bar, text = "Marcar como Listo", command=Bar_marcar_listo
 btn_Blisto.place(x= 520, y = 250)
 
 #----------------------------- R1 -----------------------------------4
-label_fecha_inicio = tk.Label(r1, text="Fecha Inicio (YYYY/MM/DD 00:00):")
-label_fecha_inicio.pack(pady=5)
-entry_fecha_inicio = tk.Entry(r1)
-entry_fecha_inicio.pack(pady=10)
+label_fecha_inicioR1 = tk.Label(r1, text="Fecha Inicio (YYYY/MM/DD 00:00):")
+label_fecha_inicioR1.pack(pady=5)
+entry_fecha_inicioR1 = tk.Entry(r1)
+entry_fecha_inicioR1.pack(pady=10)
 
-label_fecha_fin = tk.Label(r1, text="Fecha Fin (YYYY/MM/DD 00:00):")
-label_fecha_fin.pack(pady=5)
-entry_fecha_fin = tk.Entry(r1)
-entry_fecha_fin.pack(pady=5)
+label_fecha_finR1 = tk.Label(r1, text="Fecha Fin (YYYY/MM/DD 00:00):")
+label_fecha_finR1.pack(pady=5)
+entry_fecha_finR1 = tk.Entry(r1)
+entry_fecha_finR1.pack(pady=5)
 
-btn_registro1 = tk.Button(r1, text="Realizar Reporte", command=R1)
-btn_registro1.pack(pady=5)
+btn_registroR1 = tk.Button(r1, text="Realizar Reporte", command=R1)
+btn_registroR1.pack(pady=5)
 
-#----------------------------- R4 -----------------------------------
-label_fecha_inicio = tk.Label(r4, text="Fecha Inicio (YYYY/MM/DD 00:00):")
-label_fecha_inicio.pack(pady=5)
-entry_fecha_inicio = tk.Entry(r4)
-entry_fecha_inicio.pack(pady=10)
+btn_regresarR1 = tk.Button(r1, text="Regresar", command=Reportes)
+btn_regresarR1.pack(pady=5)
 
-label_fecha_fin = tk.Label(r4, text="Fecha Fin (YYYY/MM/DD 00:00):")
-label_fecha_fin.pack(pady=5)
-entry_fecha_fin = tk.Entry(r4)
-entry_fecha_fin.pack(pady=5)
+#----------------------------- R2 -----------------------------------4
+label_fecha_inicioR2 = tk.Label(r2, text="Fecha Inicio (YYYY/MM/DD 00:00):")
+label_fecha_inicioR2.pack(pady=5)
+entry_fecha_inicioR2 = tk.Entry(r2)
+entry_fecha_inicioR2.pack(pady=10)
 
-btn_registro4 = tk.Button(r4, text="Realizar Reporte", command=R4)
-btn_registro4.pack(pady=5)
+label_fecha_finR2 = tk.Label(r2, text="Fecha Fin (YYYY/MM/DD 00:00):")
+label_fecha_finR2.pack(pady=5)
+entry_fecha_finR2 = tk.Entry(r2)
+entry_fecha_finR2.pack(pady=5)
+
+btn_registroR2 = tk.Button(r2, text="Realizar Reporte", command=R2)
+btn_registroR2.pack(pady=5)
+
+btn_regresarR2 = tk.Button(r2, text="Regresar", command=Reportes)
+btn_regresarR2.pack(pady=5)
 
 #----------------------------- R3 -----------------------------------
 
-label_fecha_inicio = tk.Label(r3, text="Fecha Inicio (YYYY/MM/DD 00:00):")
-label_fecha_inicio.pack(pady=5)
-entry_fecha_inicio = tk.Entry(r3)
-entry_fecha_inicio.pack(pady=10)
+label_fecha_inicioR3 = tk.Label(r3, text="Fecha Inicio (YYYY/MM/DD 00:00):")
+label_fecha_inicioR3.pack(pady=5)
+entry_fecha_inicioR3 = tk.Entry(r3)
+entry_fecha_inicioR3.pack(pady=10)
 
-label_fecha_fin = tk.Label(r3, text="Fecha Fin (YYYY/MM/DD 00:00):")
-label_fecha_fin.pack(pady=5)
-entry_fecha_fin = tk.Entry(r3)
-entry_fecha_fin.pack(pady=5)
+label_fecha_finR3 = tk.Label(r3, text="Fecha Fin (YYYY/MM/DD 00:00):")
+label_fecha_finR3.pack(pady=5)
+entry_fecha_finR3 = tk.Entry(r3)
+entry_fecha_finR3.pack(pady=5)
 
-btn_registro4 = tk.Button(r3, text="Realizar Reporte", command=R3)
-btn_registro4.pack(pady=5)
+btn_registroR3 = tk.Button(r3, text="Realizar Reporte", command=R3)
+btn_registroR3.pack(pady=5)
 
+btn_regresarR3 = tk.Button(r3, text="Regresar", command=Reportes)
+btn_regresarR3.pack(pady=5)
+#----------------------------- R4 -----------------------------------
+label_fecha_inicioR4 = tk.Label(r4, text="Fecha Inicio (YYYY/MM/DD 00:00):")
+label_fecha_inicioR4.pack(pady=5)
+entry_fecha_inicioR4 = tk.Entry(r4)
+entry_fecha_inicioR4.pack(pady=10)
+
+label_fecha_finR4 = tk.Label(r4, text="Fecha Fin (YYYY/MM/DD 00:00):")
+label_fecha_finR4.pack(pady=5)
+entry_fecha_finR4 = tk.Entry(r4)
+entry_fecha_finR4.pack(pady=5)
+
+btn_registroR4 = tk.Button(r4, text="Realizar Reporte", command=R4)
+btn_registroR4.pack(pady=5)
+
+btn_regresarR4 = tk.Button(r4, text="Regresar", command=Reportes)
+btn_regresarR4.pack(pady=5)
 
 window.mainloop()

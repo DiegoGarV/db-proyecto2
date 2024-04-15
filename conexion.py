@@ -49,7 +49,6 @@ def verificar_Usuario(usuario, contraseña):
         print("Error al verificar las credenciales:", e)
         return False
     
-
 def agregar_Usuario(nombre, pos, usuario, contraseña):
     try:
         cur = conn.cursor()
@@ -201,18 +200,21 @@ def plato_mas_pedidos(fecha_inicio, fecha_final):
         cur = conn.cursor()
 
         cur.execute(""" SELECT a.nombre_alimento AS plato,
-        COUNT(*) AS cantidad_pedidos
-        FROM pedidos p
-        JOIN alimentos a ON p.id_alimento = a.id_alimento
-        JOIN ordenes o ON p.id_orden = o.id_orden
-        WHERE a.tipo_alimento ILIKE 'plato'
-        AND o.fecha_orden BETWEEN %s AND %s
-        GROUP BY a.nombre_alimento
-        ORDER BY COUNT(*) DESC; """, (fecha_inicio, fecha_final))
+                        SUM(p.cantidad) AS cantidad_pedidos
+                        FROM pedidos p
+                        JOIN alimentos a ON p.id_alimento = a.id_alimento
+                        JOIN ordenes o ON p.id_orden = o.id_orden
+                        WHERE a.tipo_alimento ILIKE 'plato' 
+                        AND o.fecha_apertura BETWEEN %s AND %s
+                        AND o.fecha_cierre IS NOT NULL
+                        GROUP BY a.nombre_alimento
+                        ORDER BY SUM(p.cantidad) DESC; """, (fecha_inicio, fecha_final))
         platos_pedidos = cur.fetchall()
+        #print(platos_pedidos)
         return platos_pedidos
     
-    except psycopg2.Error:
+    except psycopg2.Error as e:
+        print("Error al obtener el plato más pedido:", e)
         return None
     
     
@@ -220,39 +222,20 @@ def horarios_altos(fecha_inicio, fecha_final):
     try:
         cur = conn.cursor()
 
-        cur.execute(""" SELECT DATE_TRUNC('hour', o.fecha_orden) AS hora,
-        COUNT(*) AS cantidad_ordenes
-        FROM ordenes o
-        WHERE o.fecha_orden BETWEEN '2024-01-01' AND '2024-03-31' -- Rango de fechas
-        GROUP BY DATE_TRUNC('hour', o.fecha_orden)
-        ORDER BY COUNT(*) DESC; """, (fecha_inicio, fecha_final))
+        cur.execute(""" SELECT TO_CHAR(DATE_TRUNC('hour', o.fecha_apertura), 'HH24:MI') AS hora_truncada,
+                        SUM(p.cantidad) AS cantidad_ordenes
+                        FROM ordenes o
+                        JOIN pedidos p ON o.id_orden = p.id_orden
+                        JOIN alimentos a ON p.id_alimento = a.id_alimento
+                        WHERE o.fecha_apertura BETWEEN %s AND %s
+                        GROUP BY DATE_TRUNC('hour', o.fecha_apertura)
+                        ORDER BY SUM(p.cantidad) DESC; """, (fecha_inicio, fecha_final))
         horas_altas = cur.fetchall()
+        #print(horas_altas)
         return horas_altas
     
     except psycopg2.Error as e:
         return None
-    
-def TiempoComida():
-    try:
-        cur = conn.cursor()
-
-        cur.execute("""
-        SELECT 
-            cantidad_personas,
-            AVG(tiempo_comida) AS promedio_tiempo_comida
-        FROM (
-            SELECT 
-                cantidad_personas,
-                EXTRACT(EPOCH FROM (fecha_fin - fecha_inicio)) / 60 AS tiempo_comida
-            FROM reservaciones
-            WHERE fecha_inicio >= %s AND fecha_fin <= %s
-        ) AS tiempos_por_persona
-        GROUP BY cantidad_personas
-        ORDER BY cantidad_personas;
-                    """)
-    except psycopg2.Error as e:
-        print("Error al obtener la cantidad del alimento:", e)
-        return 0
     
 def QuejasXCliente(fecha_inicio, fecha_fin):
     try: 
@@ -293,7 +276,7 @@ def PromedioComida(fecha_inicio, fecha_fin):
             JOIN 
                 mesas ON ordenes.id_mesa = mesas.id_mesa
             WHERE 
-                ordenes.fecha_apertura BETWEEN '2024/04/14 11:00' AND '2024/04/14 23:59' 
+                ordenes.fecha_apertura BETWEEN %s AND %s 
                 AND ordenes.fecha_cierre IS NOT NULL
             GROUP BY 
                 mesas.cantidad_personas;
