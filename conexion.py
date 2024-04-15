@@ -206,7 +206,6 @@ def plato_mas_pedidos(fecha_inicio, fecha_final):
                         JOIN ordenes o ON p.id_orden = o.id_orden
                         WHERE a.tipo_alimento ILIKE 'plato' 
                         AND o.fecha_apertura BETWEEN %s AND %s
-                        AND o.fecha_cierre IS NOT NULL
                         GROUP BY a.nombre_alimento
                         ORDER BY SUM(p.cantidad) DESC; """, (fecha_inicio, fecha_final))
         platos_pedidos = cur.fetchall()
@@ -381,3 +380,91 @@ def obtener_menu():
     except psycopg2.Error as e:
         print("Error al obtener el menu:", e)
         return None
+    
+def elim_meal(id_orden, id_alimento):
+
+    try:
+        cur = conn.cursor()
+
+        # Verificar si existe un pedido con el id_orden y id_alimento especificados
+        cur.execute("SELECT cantidad FROM Pedidos WHERE id_orden = %s AND id_alimento = %s", (id_orden, id_alimento))
+        pedido_info = cur.fetchone()
+
+        if pedido_info:
+            cantidad_actual = pedido_info[0]
+
+            # Si la cantidad es mayor a uno, simplemente resta uno a la cantidad
+            if cantidad_actual > 1:
+                nueva_cantidad = cantidad_actual - 1
+                cur.execute("UPDATE Pedidos SET cantidad = %s WHERE id_orden = %s AND id_alimento = %s", (nueva_cantidad, id_orden, id_alimento))
+                conn.commit()
+                print(f"Se actualizó la cantidad del alimento (id_orden={id_orden}, id_alimento={id_alimento}) a {nueva_cantidad}")
+                return True
+            else:
+                # Si la cantidad es igual a uno, elimina el registro del pedido
+                cur.execute("DELETE FROM Pedidos WHERE id_orden = %s AND id_alimento = %s", (id_orden, id_alimento))
+                conn.commit()
+                print(f"Se eliminó el alimento (id_orden={id_orden}, id_alimento={id_alimento}) del pedido")
+                return True
+
+        else:
+            print(f"No se encontró un pedido con id_orden={id_orden} y id_alimento={id_alimento}")
+            return False
+
+    except OperationalError as e:
+        print(f"Error al ejecutar la consulta: {e}")
+        return False
+
+
+def add_meal(id_orden, id_alimento):
+    try:
+        cur = conn.cursor()
+
+        # Verificar si ya existe un pedido con los ids proporcionados
+        cur.execute("SELECT cantidad FROM Pedidos WHERE id_orden = %s AND id_alimento = %s", (id_orden, id_alimento))
+        pedido_info = cur.fetchone()
+
+        if pedido_info:
+            # Si ya existe un pedido, incrementar la cantidad en 1
+            cantidad_actual = pedido_info[0]
+            nueva_cantidad = cantidad_actual + 1
+            cur.execute("UPDATE Pedidos SET cantidad = %s WHERE id_orden = %s AND id_alimento = %s", (nueva_cantidad, id_orden, id_alimento))
+            conn.commit()
+            print(f"Se incrementó la cantidad del alimento (id_orden={id_orden}, id_alimento={id_alimento}) a {nueva_cantidad}")
+            return True
+        else:
+            # Si no existe un pedido, agregar uno nuevo con cantidad 1
+            cur.execute("INSERT INTO Pedidos (id_orden, id_alimento, cantidad) VALUES (%s, %s, %s)", (id_orden, id_alimento, 1))
+            conn.commit()
+            print(f"Se agregó un nuevo alimento (id_orden={id_orden}, id_alimento={id_alimento}) al pedido")
+            return True
+
+    except OperationalError as e:
+        print(f"Error al ejecutar la consulta: {e}")
+        return False
+
+def obtener_alimentos(id_orden):
+    try:
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT a.id_alimento, a.nombre_alimento, p.cantidad
+            FROM pedidos p
+            JOIN alimentos a ON p.id_alimento = a.id_alimento
+            WHERE p.id_orden = %s; """, (id_orden,))
+
+        # Obtener los resultados de la consulta
+        alimentos_pedidos = cur.fetchall()
+
+        # Cerrar el cursor y confirmar cambios en la base de datos
+        cur.close()
+        conn.commit()
+
+    except OperationalError as e:
+        print(f"Error al conectar a la base de datos: {e}")
+
+
+    # Procesar los resultados y devolver el nombre del alimento y la cantidad pedida
+    resultado = [(id_alimento, nombre, cantidad) for id_alimento, nombre, cantidad in alimentos_pedidos]
+    #print(resultado)
+    return resultado

@@ -6,6 +6,7 @@ from datetime import datetime
 
 usuario_fin = ''
 data_pedidos = ''
+data_menu = ''
 
 #---------------------- Pantalla Log In ----------------------
 window = tk.Tk()
@@ -153,6 +154,32 @@ R4tree = ttk.Treeview(r4, columns=("Nombre Cliente"))
 R4tree.heading("#0", text="Quejas")
 R4tree.column("#0", width=200)
 R4tree.pack(padx=10, pady=10)
+
+#-------------------------- Pantalla Order Meals  --------------------------
+meals = tk.Toplevel()
+meals.title("Edición de alimentos")
+meals.geometry("1000x500")
+meals.resizable(0,0)
+meals.withdraw()
+meals.protocol("WM_DELETE_WINDOW", quit)
+
+meals_frame = tk.Frame(meals)
+meals_frame.pack(fill=tk.BOTH, expand=True)
+
+Mealstree = ttk.Treeview(meals_frame, columns=("Nombre", "Cantidad"))
+Mealstree.heading("#0", text="ID")
+Mealstree.heading("Nombre", text="Nombre alimento")
+Mealstree.heading("Cantidad", text="Cantidad")
+Mealstree.column("#0", width=0)
+Mealstree.pack(side=tk.RIGHT, padx=10, pady=5, fill=tk.BOTH, expand=True)
+
+Menutree = ttk.Treeview(meals_frame, columns=("Nombre", "Tipo", "Precio"))
+Menutree.heading("#0", text="ID")
+Menutree.heading("Nombre", text="Nombre alimento")
+Menutree.heading("Tipo", text="Tipo alimento")
+Menutree.heading("Precio", text="Precio")
+Menutree.column("#0", width=0)
+Menutree.pack(side=tk.RIGHT, padx=10, pady=5, fill=tk.BOTH, expand=True)
 
 #---------------------- Funciones --------------------------
 def R1(): 
@@ -353,7 +380,6 @@ def r6_load():
     reportes.withdraw()
     r6.deiconify()
 
-
 def pedido_load():
     global data_pedidos
 
@@ -361,6 +387,7 @@ def pedido_load():
     main_menu_window.withdraw()
     pedidosCerrados.withdraw()
     tomaPedidos.withdraw()
+    meals.withdraw()
     pedidos.deiconify()
 
     # Obtener los datos de los pedidos
@@ -422,7 +449,7 @@ def pedido_load():
             ttk.Label(card_frame, text=f"Fecha Cierre: {fecha2}").pack(anchor=tk.W)
             ttk.Label(card_frame, text=f"Número de Mesa: {pedido[4]}").pack(anchor=tk.W)
             
-            btn_editar = ttk.Button(card_frame, text="Editar", command=lambda id=pedido[0]: open_order_details(id))
+            btn_editar = ttk.Button(card_frame, text="Editar", command=lambda id=pedido[0]: load_order_meals(id))
             btn_editar.pack(side=tk.LEFT, padx=10)
 
             btn_imprimir = ttk.Button(card_frame, text="Imprimir", command=lambda id=pedido[0]: generate_factura(id))
@@ -459,7 +486,6 @@ def crear_pedido():
             pedido_load()
         else:
             messagebox.showinfo("Error al tomar la orden", "No se ha podido registrar la orden correctamente")
-
 
 def pedidos_cerrados_load():
     pedidos.withdraw()
@@ -526,12 +552,71 @@ def obtener_pedidos():
     else:
         messagebox.showerror("Error", "Error al obtener los datos de las ordenes")
 
-def open_order_details(id):
-    pass
+def obtener_menu():
+    global data_menu
+    resultado = con.obtener_menu()
+    if resultado is not None and resultado:
+        data_menu = resultado
+        #print(data_menu)
+    else:
+        messagebox.showerror("Error", "Error al obtener los datos de las ordenes")
 
-def generate_factura(id):
-    pass
+def load_order_meals(id_orden):
+    
+    pedidos.withdraw()
+    meals.deiconify()
+    obtener_menu()
 
+    resultados = con.obtener_alimentos(id_orden)
+
+    for item in Mealstree.get_children():
+        Mealstree.delete(item)
+
+    for resultado in resultados:
+        Mealstree.insert("", "end", text=resultado[0], values=(resultado[1], resultado[2],))
+
+    for item in Menutree.get_children():
+        Menutree.delete(item)
+
+    for data in data_menu:
+        Menutree.insert("", "end", text=data[0], values=(data[2], data[1],("Q "+str(data[4])),))
+
+    if not hasattr(load_order_meals, "buttons_created"):
+        Mbutton_frame = tk.Frame(meals)
+        Mbutton_frame.pack(side=tk.TOP, pady=10)
+
+        btn_add_meal = ttk.Button(Mbutton_frame, text="Agregar alimento", command=lambda: add_meal(id_orden))
+        btn_add_meal.pack(side=tk.LEFT, padx=10)
+
+        btn_back = ttk.Button(Mbutton_frame, text="Regresar", command=pedido_load)
+        btn_back.pack(side=tk.LEFT, padx=10)
+
+        btn_delete_meal = ttk.Button(Mbutton_frame, text="Eliminar alimento", command=lambda: elim_meal(id_orden))
+        btn_delete_meal.pack(side=tk.LEFT, padx=10)
+
+        load_order_meals.buttons_created = True
+
+def elim_meal(id_orden):
+    focused_item = Mealstree.focus()
+    if focused_item:
+        id_alimento = Mealstree.item(focused_item, "text")
+        if con.elim_meal(id_orden, id_alimento):
+            load_order_meals(id_orden)
+        else:
+            messagebox.showerror("Error al eliminar dato", "Parece que hubo un error al eliminar el dato")
+    else:
+        messagebox.showerror("Error al marcar como listo", "Porfavor seleccione un registro")
+
+def add_meal(id_orden):
+    focused_item = Menutree.focus()
+    if focused_item:
+        id_alimento = Menutree.item(focused_item, "text")
+        if con.add_meal(id_orden, id_alimento):
+            load_order_meals(id_orden)
+        else:
+            messagebox.showerror("Error al eliminar dato", "Parece que hubo un error al eliminar el dato")
+    else:
+        messagebox.showerror("Error al marcar como listo", "Porfavor seleccione un registro")
 
 
 #----------------------------- Log In -----------------------------------
@@ -677,6 +762,8 @@ btn_irSignin.place(x = 420, y = 305)
 
 btn_exit = tk.Button(tomaPedidos, text="Regresar", command=pedido_load)
 btn_exit.place(x = 520, y = 305)
+
+#--------------------------- Edición de alimentos ----------------------
 
 #----------------------------- R1 -----------------------------------
 label_fecha_inicioR1 = tk.Label(r1, text="Fecha Inicio (YYYY/MM/DD 00:00):")
