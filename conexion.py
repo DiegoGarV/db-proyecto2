@@ -93,15 +93,56 @@ def tabla_cocina():
         FROM ordenes
         JOIN pedidos ON ordenes.id_orden = pedidos.id_orden
         JOIN alimentos ON pedidos.id_alimento = alimentos.id_alimento
+        WHERE alimentos.tipo_alimento = 'plato'
         ORDER BY ordenes.fecha_orden ASC;
         """)
 
         resultados = cur.fetchall()
-        return resultados
+        
+        # Lista para almacenar los nombres de los alimentos según la cantidad
+        alimentos_con_cantidad = []
 
+        # Recorrer los resultados y agregar el nombre del alimento tantas veces como la cantidad indicada
+        for nombre_alimento in resultados:
+            nombre = nombre_alimento # Obtener el nombre del alimento
+            cantidad = CantAlimento(nombre)
+            alimentos_con_cantidad.extend([nombre] * CantAlimento(nombre))  # Agregar el nombre según la cantidad
+
+        return alimentos_con_cantidad
 
     except psycopg2.Error as e:    
-        print("Error al agregar usuario:", e)
+        print("Error al mostrar tabla:", e)
+        return False 
+
+def tabla_bar():
+    
+    try: 
+        cur = conn.cursor()
+
+        cur.execute("""
+        SELECT alimentos.nombre_alimento
+        FROM ordenes
+        JOIN pedidos ON ordenes.id_orden = pedidos.id_orden
+        JOIN alimentos ON pedidos.id_alimento = alimentos.id_alimento
+        WHERE alimentos.tipo_alimento = 'bebida'
+        ORDER BY ordenes.fecha_orden ASC;
+        """)
+
+        resultados = cur.fetchall()
+        
+        # Lista para almacenar los nombres de los alimentos según la cantidad
+        alimentos_con_cantidad = []
+
+        # Recorrer los resultados y agregar el nombre del alimento tantas veces como la cantidad indicada
+        for nombre_alimento in resultados:
+            nombre = nombre_alimento  
+            cantidad = CantAlimento(nombre)
+            alimentos_con_cantidad.extend([nombre] * CantAlimento(nombre))  
+
+        return alimentos_con_cantidad
+
+    except psycopg2.Error as e:    
+        print("Error al mostrar tabla:", e)
         return False 
 
 def encriptacion(contraseña):
@@ -137,3 +178,23 @@ def encriptacion(contraseña):
 
     contraseña_encriptada = ''.join(palabraEncriptada)
     return contraseña_encriptada
+
+
+def CantAlimento(nombre_alimento):
+    try:
+        cur = conn.cursor()
+
+        cur.execute("""
+        SELECT SUM(cantidad)
+        FROM pedidos
+        JOIN alimentos ON pedidos.id_alimento = alimentos.id_alimento
+        WHERE alimentos.nombre_alimento = %s;
+        """, (nombre_alimento,))
+
+        cantidad = cur.fetchone()[0]  # Obtener la cantidad del alimento
+
+        return cantidad if cantidad else 0
+
+    except psycopg2.Error as e:
+        print("Error al obtener la cantidad del alimento:", e)
+        return 0
