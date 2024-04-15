@@ -31,8 +31,9 @@ def verificar_Usuario(usuario, contraseña):
     try:
         cur = conn.cursor()
 
+        usuario = usuario.lower()
         # Consulta SQL para buscar el usuario en la tabla 'personal'
-        cur.execute("SELECT COUNT(*) FROM personal WHERE usuario = %s AND contraseña = %s", (usuario, contraseña))
+        cur.execute("SELECT COUNT(*) FROM personal WHERE LOWER(usuario) = %s AND contraseña = %s", (usuario, contraseña))
         result = cur.fetchone()
 
         # Si el resultado es 1 (existe una coincidencia), las credenciales son válidas
@@ -48,6 +49,12 @@ def verificar_Usuario(usuario, contraseña):
 def agregar_Usuario(nombre, pos, usuario, contraseña):
     try:
         cur = conn.cursor()
+
+        # Verificar si el usuario ya existe en la base de datos
+        cur.execute("SELECT COUNT(*) FROM personal WHERE LOWER(usuario) = %s", (usuario.lower(),))
+        count = cur.fetchone()[0]
+        if count > 0:
+            return False
 
         # Generar un id_personal único
         id_personal = random.randint(1, 200)

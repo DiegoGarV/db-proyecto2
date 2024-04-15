@@ -18,24 +18,29 @@ main_menu_window.geometry("1000x500")
 main_menu_window.withdraw()
 
 def signinWindow():
-    signin.deiconify()
     window.withdraw()
+    signin.deiconify()
 
 def Signin(): #Aqui hay que hacer que guarde en la base de datos los usuarios y sus contraseñas
     name = entry_name_sn.get()
     jobPos = entry_jobPos_sn.get()
     username = entry_usuario_sn.get()
     password = entry_password_sn.get()
-    
-    #Añade un usuario nuevo
-    if con.agregar_Usuario(name, jobPos, username, password):
-        messagebox.showinfo("Registro exitoso", "Usuario agregado correctamente")
-        open_main_menu()  
-    else:
-        messagebox.showerror("Error al registrar usuario", "Hubo un problema al agregar el usuario")
+    confPassword = entry_Confpassword_sn.get()
 
-    #btn_Signin = tk.Button(signin, text = "Registrarse", command=Signin) #al precionar este boton hacer lo de arriba
-    #btn_Signin.pack(pady = 5,padx=5)
+    #Verifica que los valores no sean vacios
+    if name=="" or jobPos=="" or username=="" or password=="" or confPassword=="":
+        messagebox.showerror("Error al registrar usuario", "Todas las casillas deben tener información.")
+    #Verifica que la contraseña y la confirmación sean iguales
+    elif password!=confPassword:
+        messagebox.showerror("Error al registrar usuario", "La contraseña no coincide.")
+    else:
+        #Añade un usuario nuevo
+        if con.agregar_Usuario(name, jobPos, username, password):
+            messagebox.showinfo("Registro exitoso", "Usuario agregado correctamente")
+            open_main_menu()  
+        else:
+            messagebox.showerror("Error al registrar usuario", "Hubo un problema al agregar el usuario.")
     
 def login(): #Aqui tiene que jalar los datos de la base de datos
     username = entry_username_w.get()
@@ -48,6 +53,7 @@ def login(): #Aqui tiene que jalar los datos de la base de datos
         
 def open_main_menu(): #Me falta meterle para ponerle todas las opciones a otras pantallas
     window.withdraw()
+    signin.withdraw()
     main_menu_window.deiconify()
     
     lbl_menu = tk.Label(main_menu_window, text="¡Bienvenido al Menú Principal!")
