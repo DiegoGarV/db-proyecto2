@@ -155,6 +155,16 @@ R4tree.heading("#0", text="Quejas")
 R4tree.column("#0", width=200)
 R4tree.pack(padx=10, pady=10)
 
+R5tree = ttk.Treeview(r5, columns=("Nombre Plato"))
+R5tree.heading("#0", text="Queja")
+R5tree.column("#0", width=200)
+R5tree.pack(padx=10, pady=10)
+
+R6tree = ttk.Treeview(r6, columns=("Eficiencia del Mesero"))
+R6tree.heading("#0", text="Comentarios")
+R6tree.column("#0", width=200)
+R6tree.pack(padx=10, pady=10)
+
 #-------------------------- Pantalla Order Meals  --------------------------
 meals = tk.Toplevel()
 meals.title("Edición de alimentos")
@@ -253,6 +263,32 @@ def R4():
     for resultado in resultados:
         contador = contador + 1
         R4tree.insert("", "end", values=( resultado))
+
+def R5(): 
+    con.QuejasPlato(fecha_inicio=entry_fecha_inicioR5.get(), fecha_fin=entry_fecha_finR5.get())
+
+    resultados = con.QuejasPlato(fecha_inicio=entry_fecha_inicioR5.get(), fecha_fin=entry_fecha_finR5.get())
+
+    for item in R5tree.get_children():
+        R5tree.delete(item)
+        
+    contador = 0
+    for resultado in resultados:
+        contador = contador + 1
+        R5tree.insert("", "end", values=( resultado))
+
+def R6(): 
+    con.Eficiencia(fecha_inicio=entry_fecha_inicioR6.get(), fecha_fin=entry_fecha_finR6.get())
+
+    resultados = con.Eficiencia(fecha_inicio=entry_fecha_inicioR6.get(), fecha_fin=entry_fecha_finR6.get())
+
+    for item in R6tree.get_children():
+        R6tree.delete(item)
+        
+    contador = 0
+    for resultado in resultados:
+        contador = contador + 1
+        R6tree.insert("", "end", values=( resultado))
 
 def Bar_marcar_listo():
     try:
@@ -833,4 +869,37 @@ btn_registroR4.pack(pady=5)
 btn_regresarR4 = tk.Button(r4, text="Regresar", command=Reportes)
 btn_regresarR4.pack(pady=5)
 
+#----------------------------- R5 -----------------------------------
+label_fecha_inicioR5 = tk.Label(r5, text="Fecha Inicio (YYYY/MM/DD 00:00):")
+label_fecha_inicioR5.pack(pady=5)
+entry_fecha_inicioR5 = tk.Entry(r5)
+entry_fecha_inicioR5.pack(pady=10)
+
+label_fecha_finR5 = tk.Label(r5, text="Fecha Fin (YYYY/MM/DD 00:00):")
+label_fecha_finR5.pack(pady=5)
+entry_fecha_finR5 = tk.Entry(r5)
+entry_fecha_finR5.pack(pady=5)
+
+btn_registroR5 = tk.Button(r5, text="Realizar Reporte", command=R5)
+btn_registroR5.pack(pady=5)
+
+btn_regresarR5 = tk.Button(r5, text="Regresar", command=Reportes)
+btn_regresarR5.pack(pady=5)
+
+#----------------------------- R6 -----------------------------------
+label_fecha_inicioR6 = tk.Label(r6, text="Fecha Inicio (YYYY/MM/DD 00:00):")
+label_fecha_inicioR6.pack(pady=5)
+entry_fecha_inicioR6 = tk.Entry(r6)
+entry_fecha_inicioR6.pack(pady=10)
+
+label_fecha_finR6 = tk.Label(r6, text="Fecha Fin (YYYY/MM/DD 00:00):")
+label_fecha_finR6.pack(pady=5)
+entry_fecha_finR6 = tk.Entry(r6)
+entry_fecha_finR6.pack(pady=5)
+
+btn_registroR6 = tk.Button(r6, text="Realizar Reporte", command=R6)
+btn_registroR6.pack(pady=5)
+
+btn_regresarR6 = tk.Button(r6, text="Regresar", command=Reportes)
+btn_regresarR6.pack(pady=5)
 window.mainloop()
