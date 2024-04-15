@@ -32,6 +32,8 @@ def verificar_Usuario(usuario, contraseña):
         cur = conn.cursor()
 
         usuario = usuario.lower()
+        contraseña = encriptacion(contraseña)
+
         # Consulta SQL para buscar el usuario en la tabla 'personal'
         cur.execute("SELECT COUNT(*) FROM personal WHERE LOWER(usuario) = %s AND contraseña = %s", (usuario, contraseña))
         result = cur.fetchone()
@@ -66,6 +68,9 @@ def agregar_Usuario(nombre, pos, usuario, contraseña):
                 break
             id_personal = random.randint(1, 200)  # Intentar con otro id_personal único
 
+        #Encripta la contraseña
+        contraseña = encriptacion(contraseña)
+
         # Insertar el nuevo usuario en la tabla Personal
         cur.execute("INSERT INTO personal (id_personal, nombre_personal, posicion_laboral, usuario, contraseña) VALUES (%s, %s, %s, %s, %s)",
                     (id_personal, nombre, pos, usuario, contraseña))
@@ -78,7 +83,7 @@ def agregar_Usuario(nombre, pos, usuario, contraseña):
         print("Error al agregar usuario:", e)
         return False
     
-def tabla():
+def tabla_cocina():
     
     try: 
         cur = conn.cursor()
@@ -98,3 +103,37 @@ def tabla():
     except psycopg2.Error as e:    
         print("Error al agregar usuario:", e)
         return False 
+
+def encriptacion(contraseña):
+    diccionario = {' ':0}
+    diccionario.update({chr(i + ord('A')): i + 1 for i in range(26)})
+    diccionario.update({str(i): i + 27 for i in range(10)})
+    diccionario.update({'_':37})
+    diccionario.update({'-':38})
+    p=97
+    q=89
+    n=p*q
+    e=13
+
+    def buscarValor(letra):
+        for llave, value in diccionario.items():
+            if llave == letra:
+                return str(value).zfill(2)
+        return "Esta letra no está en el diccionario"
+    
+    contraseña=contraseña.upper()
+    palabraNumero = []
+    for i in range(0, len(contraseña), 2):
+        num1 = buscarValor(contraseña[i])
+        num2 = buscarValor(contraseña[i + 1]) if i + 1 < len(contraseña) else 00
+        palabraNumero.append(num1+num2)
+
+    palabraEncriptada = []
+    for i in palabraNumero:
+        i = int(i)
+        x = (i**e)%n
+        x = str(x).zfill(4)
+        palabraEncriptada.append(x)
+
+    contraseña_encriptada = ''.join(palabraEncriptada)
+    return contraseña_encriptada

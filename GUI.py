@@ -2,7 +2,13 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 import conexion as con
-import psycopg2
+
+#Diccionario de valores admitidos en la contraseña
+diccionario = {' ':0}
+diccionario.update({chr(i + ord('A')): i + 1 for i in range(26)})
+diccionario.update({str(i): i + 27 for i in range(10)})
+diccionario.update({'_':37})
+diccionario.update({'-':38})
 
 # Pantalla Log In
 #Crea la interfaz gráfica
@@ -49,8 +55,8 @@ def PantCocina():
     main_menu_window.withdraw()
     cocina.deiconify()
 
-    con.tabla()
-    resultados = con.tabla()
+    con.tabla_cocina()
+    resultados = con.tabla_cocina()
 
 
     for item in tree.get_children():
@@ -75,14 +81,19 @@ def Signin(): #Aqui hay que hacer que guarde en la base de datos los usuarios y 
     #Verifica que los valores no sean vacios
     if name=="" or jobPos=="" or username=="" or password=="" or confPassword=="":
         messagebox.showerror("Error al registrar usuario", "Todas las casillas deben tener información.")
+    #Verifica que la contraseña tenga los valores aceptados
+    elif verificar_caracteres(password) or ' ' in password:
+        messagebox.showerror("Error al registrar usuario", "La contraseña solo puede contener letras del abecedario anglosajón, números, guión(-) y guión bajo(_).")
     #Verifica que la contraseña y la confirmación sean iguales
     elif password!=confPassword:
         messagebox.showerror("Error al registrar usuario", "La contraseña no coincide.")
     else:
         #Añade un usuario nuevo
+        if len(password)%2 != 0:
+            password += ' '
         if con.agregar_Usuario(name, jobPos, username, password):
             messagebox.showinfo("Registro exitoso", "Usuario agregado correctamente")
-            open_main_menu()  
+            open_main_menu()
         else:
             messagebox.showerror("Error al registrar usuario", "Hubo un problema al agregar el usuario.")
     
@@ -90,6 +101,8 @@ def login(): #Aqui tiene que jalar los datos de la base de datos
     username = entry_username_w.get()
     password = entry_password_w.get()
     
+    if len(password)%2 != 0:
+            password += ' '
     if con.verificar_Usuario(username, password):
         open_main_menu()        
     else:
@@ -105,6 +118,15 @@ def return_to_login():
     main_menu_window.withdraw()
     window.deiconify()
 
+def verificar_caracteres(cadena):
+    cadena = cadena.upper()
+    caracteres_permitidos = set(diccionario.keys())
+    caracteres_invalidos = [char for char in cadena if char not in caracteres_permitidos]
+    
+    if caracteres_invalidos:
+        return True
+    else:
+        return False
 
 #----------------------------- Log In -----------------------------------
 label_username_w = tk.Label(window, text="Usuario:")
