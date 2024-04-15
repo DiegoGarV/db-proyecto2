@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 import conexion as con
-import psycopg2
+
 
 # Pantalla Log In
 #Crea la interfaz gráfica
@@ -36,21 +36,62 @@ cocina.geometry("1000x500")
 cocina.resizable (0,0)
 cocina.withdraw()
 cocina.protocol("WM_DELETE_WINDOW", quit)
-tree = ttk.Treeview(cocina, columns=("Nombre Alimento"))
+tree = ttk.Treeview(cocina, columns=("Nombre Plato"))
 tree.heading("#0", text="Ordenes")
 tree.column("#0", width=200)  
 tree.pack(padx=10, pady=10)
 
-def marcar_listo():
-    row = tree.focus()
-    tree.delete(row)
+# Pantalla Bar
+bar = tk.Toplevel()
+bar.title("Bar")
+bar.geometry("1000x500")
+bar.resizable(0,0)
+bar.withdraw()
+bar.protocol("WM_DELETE_WINDOW", quit)
+Bartree = ttk.Treeview(bar, columns=("Nombre Bebida"))
+Bartree.heading("#0", text="Ordenes")
+Bartree.column("#0", width=200)  
+Bartree.pack(padx=10, pady=10)
 
+def Bar_marcar_listo():
+    try:
+        row = Bartree.focus()
+        Bartree.delete(row)
+    except: 
+        messagebox.showerror("Error al marcar como listo", "Porfavor seleccione un registro")
+        return False 
+
+def PantBar():
+    main_menu_window.withdraw()
+    bar.deiconify()
+
+    con.tabla_bar()
+    
+    resultados = con.tabla_bar()
+
+
+    for item in Bartree.get_children():
+        Bartree.delete(item)
+
+    contador = 0
+    for resultado in resultados:
+        contador = contador + 1
+        Bartree.insert("", "end", values=(contador, resultado[0],))
+
+def Cocina_marcar_listo():
+    try:
+        row = tree.focus()
+        tree.delete(row)
+    except: 
+        messagebox.showerror("Error al marcar como listo", "Porfavor seleccione un registro")
+        return False 
+    
 def PantCocina():
     main_menu_window.withdraw()
     cocina.deiconify()
 
-    con.tabla()
-    resultados = con.tabla()
+    con.tabla_cocina()
+    resultados = con.tabla_cocina()
 
 
     for item in tree.get_children():
@@ -90,12 +131,14 @@ def login(): #Aqui tiene que jalar los datos de la base de datos
     else:
         messagebox.showerror("Error de inicio de sesión", "Usuario o contraseña incorrectos")
         
-def open_main_menu(): #Me falta meterle para ponerle todas las opciones a otras pantallas
+def open_main_menu(): 
+    bar.withdraw()
     cocina.withdraw()
     window.withdraw()
     main_menu_window.deiconify()
     
 def return_to_login():
+    signin.withdraw()
     main_menu_window.withdraw()
     window.deiconify()
 
@@ -146,25 +189,48 @@ entry_Confpassword_sn = tk.Entry(signin, show= "*")
 entry_Confpassword_sn.pack(pady=5)
 
 btn_irSignin = tk.Button(signin, text = "Registrarse", command=Signin)
-btn_irSignin.pack(pady=5)
+btn_irSignin.place(x = 420, y = 305)
+
+
+btn_exit = tk.Button(signin, text="Regresar", command=return_to_login)
+btn_exit.place(x = 520, y = 305)
 
 #----------------------------- Menu -----------------------------------
 lbl_menu = tk.Label(main_menu_window, text="¡Bienvenido al Menú Principal!")
 lbl_menu.pack(pady=10)
+lbl_menu.config(font=("arial", 20, "bold"))
 
 btn_exit = tk.Button(main_menu_window, text="Regresar", command=return_to_login)
-btn_exit.pack(pady=5)
+btn_exit.place(x = 550, y = 150)
+btn_exit.config(font=("Arial", 10, "bold"))
 
-btn_cocina = tk.Button(main_menu_window, text="Cocina", command=PantCocina)
-btn_cocina.pack(pady=5)
 
+btn_cocina = tk.Button(main_menu_window, text="  Cocina ", command=PantCocina)
+btn_cocina.place(x = 550, y = 100)
+btn_cocina.config(font=("Arial", 10, "bold"))
+
+
+btn_bar = tk.Button(main_menu_window, text="    Bar    ", command=PantBar)
+btn_bar.place(x = 420, y = 150)
+btn_bar.config(font=("Arial", 10, "bold"))
+
+btn_pedido = tk.Button(main_menu_window, text=" Pedido ")
+btn_pedido.place(x = 420, y = 100)
+btn_pedido.config(font=("Arial", 10, "bold"))
 
 #----------------------------- Cocina -----------------------------------
 
-btn_reg = tk.Button(cocina, text="Regresar", command=open_main_menu)
-btn_reg.place(x= 420, y = 250)
+btn_Creg = tk.Button(cocina, text="Regresar", command=open_main_menu)
+btn_Creg.place(x= 420, y = 250)
 
-btn_listo = tk.Button(cocina, text = "Marcar como Listo", command=marcar_listo)
-btn_listo.place(x= 520, y = 250)
+btn_Clisto = tk.Button(cocina, text = "Marcar como Listo", command=Cocina_marcar_listo)
+btn_Clisto.place(x= 520, y = 250)
 
+#----------------------------- Bar -----------------------------------
+
+btn_Breg = tk.Button(bar, text="Regresar", command=open_main_menu)
+btn_Breg.place(x= 420, y = 250)
+
+btn_Blisto = tk.Button(bar, text = "Marcar como Listo", command=Bar_marcar_listo)
+btn_Blisto.place(x= 520, y = 250)
 window.mainloop()
