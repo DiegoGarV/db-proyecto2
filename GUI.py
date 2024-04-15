@@ -3,12 +3,6 @@ from tkinter import messagebox
 from tkinter import ttk
 import conexion as con
 
-#Diccionario de valores admitidos en la contraseña
-diccionario = {' ':0}
-diccionario.update({chr(i + ord('A')): i + 1 for i in range(26)})
-diccionario.update({str(i): i + 27 for i in range(10)})
-diccionario.update({'_':37})
-diccionario.update({'-':38})
 
 # Pantalla Log In
 #Crea la interfaz gráfica
@@ -56,7 +50,7 @@ bar.withdraw()
 bar.protocol("WM_DELETE_WINDOW", quit)
 Bartree = ttk.Treeview(bar, columns=("Nombre Bebida"))
 Bartree.heading("#0", text="Ordenes")
-Bartree.column("#0", width=200)  
+Bartree.column("#0", width=200)
 Bartree.pack(padx=10, pady=10)
 
 # Pantalla Menu Reportes
@@ -102,6 +96,26 @@ r3.withdraw()
 r4.withdraw()
 r5.withdraw()
 r6.withdraw()
+
+R4tree = ttk.Treeview(r4, columns=("Nombre Cliente"))
+R4tree.heading("#0", text="Quejas")
+R4tree.column("#0", width=200)
+R4tree.pack(padx=10, pady=10)
+
+def R4(): 
+    r4.deiconify()
+    
+    con.QuejasXCliente(fecha_inicio=entry_fecha_inicio.get(), fecha_fin=entry_fecha_fin.get())
+
+    resultados = con.QuejasXCliente(fecha_inicio=entry_fecha_inicio.get(), fecha_fin=entry_fecha_fin.get())
+
+    for item in R4tree.get_children():
+        R4tree.delete(item)
+
+    contador = 0
+    for resultado in resultados:
+        contador = contador + 1
+        R4tree.insert("", "end", values=( resultado))
 
 def Bar_marcar_listo():
     try:
@@ -153,41 +167,28 @@ def PantCocina():
         tree.insert("", "end", values=(contador, resultado[0],))
         
 def signinWindow():
-    window.withdraw()
     signin.deiconify()
+    window.withdraw()
 
-def Signin(): #Aqui hay que hacer que guarde en la base de datos los usuarios y sus contraseñas
+def Signin(): 
     name = entry_name_sn.get()
     jobPos = entry_jobPos_sn.get()
     username = entry_usuario_sn.get()
     password = entry_password_sn.get()
-    confPassword = entry_Confpassword_sn.get()
-
-    #Verifica que los valores no sean vacios
-    if name=="" or jobPos=="" or username=="" or password=="" or confPassword=="":
-        messagebox.showerror("Error al registrar usuario", "Todas las casillas deben tener información.")
-    #Verifica que la contraseña tenga los valores aceptados
-    elif verificar_caracteres(password) or ' ' in password:
-        messagebox.showerror("Error al registrar usuario", "La contraseña solo puede contener letras del abecedario anglosajón, números, guión(-) y guión bajo(_).")
-    #Verifica que la contraseña y la confirmación sean iguales
-    elif password!=confPassword:
-        messagebox.showerror("Error al registrar usuario", "La contraseña no coincide.")
-    else:
-        #Añade un usuario nuevo
-        if len(password)%2 != 0:
-            password += ' '
-        if con.agregar_Usuario(name, jobPos, username, password):
-            messagebox.showinfo("Registro exitoso", "Usuario agregado correctamente")
-            open_main_menu()
-        else:
-            messagebox.showerror("Error al registrar usuario", "Hubo un problema al agregar el usuario.")
     
-def login(): #Aqui tiene que jalar los datos de la base de datos
+    #Añade un usuario nuevo
+    if con.agregar_Usuario(name, jobPos, username, password):
+        messagebox.showinfo("Registro exitoso", "Usuario agregado correctamente")
+        open_main_menu()  
+    else:
+        messagebox.showerror("Error al registrar usuario", "Hubo un problema al agregar el usuario")
+
+
+    
+def login(): 
     username = entry_username_w.get()
     password = entry_password_w.get()
     
-    if len(password)%2 != 0:
-            password += ' '
     if con.verificar_Usuario(username, password):
         open_main_menu()        
     else:
@@ -202,7 +203,6 @@ def open_main_menu():
     bar.withdraw()
     cocina.withdraw()
     window.withdraw()
-    signin.withdraw()
     main_menu_window.deiconify()
     
 def return_to_login():
@@ -210,15 +210,7 @@ def return_to_login():
     main_menu_window.withdraw()
     window.deiconify()
 
-def verificar_caracteres(cadena):
-    cadena = cadena.upper()
-    caracteres_permitidos = set(diccionario.keys())
-    caracteres_invalidos = [char for char in cadena if char not in caracteres_permitidos]
-    
-    if caracteres_invalidos:
-        return True
-    else:
-        return False
+
 
 #----------------------------- Log In -----------------------------------
 label_username_w = tk.Label(window, text="Usuario:")
@@ -337,7 +329,19 @@ btn_Breg.place(x= 420, y = 250)
 btn_Blisto = tk.Button(bar, text = "Marcar como Listo", command=Bar_marcar_listo)
 btn_Blisto.place(x= 520, y = 250)
 
-#----------------------------- Pedidos -----------------------------------
+#----------------------------- R4 -----------------------------------
+label_fecha_inicio = tk.Label(r4, text="Fecha Inicio (YYYY/MM/DD 00:00):")
+label_fecha_inicio.pack(pady=5)
+entry_fecha_inicio = tk.Entry(r4)
+entry_fecha_inicio.pack(pady=10)
+
+label_fecha_fin = tk.Label(r4, text="Fecha Fin (YYYY/MM/DD 00:00):")
+label_fecha_fin.pack(pady=5)
+entry_fecha_fin = tk.Entry(r4)
+entry_fecha_fin.pack(pady=5)
+
+btn_registro4 = tk.Button(r4, text="Realizar Reporte", command=R4)
+btn_registro4.pack(pady=5)
 
 
 window.mainloop()
