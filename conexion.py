@@ -3,9 +3,9 @@ from psycopg2 import OperationalError
 import random
 
 
-dbname = 'restaurante'
+dbname = 'Proyecto2'
 user = 'postgres'
-password = 'Basedatos1'    #Este cambienlo a la contraseña que tengan en la bd
+password = 'admin'    #Este cambienlo a la contraseña que tengan en la bd
 host = 'localhost'
 port = '5432'
 
@@ -32,7 +32,7 @@ def verificar_Usuario(usuario, contraseña):
     try:
         cur = conn.cursor()
 
-        usuario = usuario.lower()
+        usuario = usuario
         contraseña = encriptacion(contraseña)
 
         # Consulta SQL para buscar el usuario en la tabla 'personal'
@@ -72,7 +72,7 @@ def agregar_Usuario(nombre, pos, usuario, contraseña):
         # Insertar el nuevo usuario en la tabla Personal
         cur.execute("INSERT INTO personal (id_personal, nombre_personal, posicion_laboral, usuario, contraseña) VALUES (%s, %s, %s, %s, %s)",
                     (id_personal, nombre, pos, usuario, contraseña))
-
+        
         if pos.lower()=='mesero':
             cur.execute("INSERT INTO meseros (id_personal, id_area) VALUES (%s, %s)",
                     (id_personal, random.randint(1, 5),))
@@ -211,6 +211,7 @@ def plato_mas_pedidos(fecha_inicio, fecha_final):
                         JOIN ordenes o ON p.id_orden = o.id_orden
                         WHERE a.tipo_alimento ILIKE 'plato' 
                         AND o.fecha_apertura BETWEEN %s AND %s
+                        AND o.fecha_cierre IS NOT NULL
                         GROUP BY a.nombre_alimento
                         ORDER BY SUM(p.cantidad) DESC; """, (fecha_inicio, fecha_final))
         platos_pedidos = cur.fetchall()
@@ -386,90 +387,92 @@ def obtener_menu():
         print("Error al obtener el menu:", e)
         return None
     
-def elim_meal(id_orden, id_alimento):
-
+def obtener_datos_pedido(id):
     try:
         cur = conn.cursor()
-
-        # Verificar si existe un pedido con el id_orden y id_alimento especificados
-        cur.execute("SELECT cantidad FROM Pedidos WHERE id_orden = %s AND id_alimento = %s", (id_orden, id_alimento))
-        pedido_info = cur.fetchone()
-
-        if pedido_info:
-            cantidad_actual = pedido_info[0]
-
-            # Si la cantidad es mayor a uno, simplemente resta uno a la cantidad
-            if cantidad_actual > 1:
-                nueva_cantidad = cantidad_actual - 1
-                cur.execute("UPDATE Pedidos SET cantidad = %s WHERE id_orden = %s AND id_alimento = %s", (nueva_cantidad, id_orden, id_alimento))
-                conn.commit()
-                print(f"Se actualizó la cantidad del alimento (id_orden={id_orden}, id_alimento={id_alimento}) a {nueva_cantidad}")
-                return True
-            else:
-                # Si la cantidad es igual a uno, elimina el registro del pedido
-                cur.execute("DELETE FROM Pedidos WHERE id_orden = %s AND id_alimento = %s", (id_orden, id_alimento))
-                conn.commit()
-                print(f"Se eliminó el alimento (id_orden={id_orden}, id_alimento={id_alimento}) del pedido")
-                return True
-
-        else:
-            print(f"No se encontró un pedido con id_orden={id_orden} y id_alimento={id_alimento}")
-            return False
-
-    except OperationalError as e:
-        print(f"Error al ejecutar la consulta: {e}")
-        return False
-
-
-def add_meal(id_orden, id_alimento):
-    try:
-        cur = conn.cursor()
-
-        # Verificar si ya existe un pedido con los ids proporcionados
-        cur.execute("SELECT cantidad FROM Pedidos WHERE id_orden = %s AND id_alimento = %s", (id_orden, id_alimento))
-        pedido_info = cur.fetchone()
-
-        if pedido_info:
-            # Si ya existe un pedido, incrementar la cantidad en 1
-            cantidad_actual = pedido_info[0]
-            nueva_cantidad = cantidad_actual + 1
-            cur.execute("UPDATE Pedidos SET cantidad = %s WHERE id_orden = %s AND id_alimento = %s", (nueva_cantidad, id_orden, id_alimento))
-            conn.commit()
-            print(f"Se incrementó la cantidad del alimento (id_orden={id_orden}, id_alimento={id_alimento}) a {nueva_cantidad}")
-            return True
-        else:
-            # Si no existe un pedido, agregar uno nuevo con cantidad 1
-            cur.execute("INSERT INTO Pedidos (id_orden, id_alimento, cantidad) VALUES (%s, %s, %s)", (id_orden, id_alimento, 1))
-            conn.commit()
-            print(f"Se agregó un nuevo alimento (id_orden={id_orden}, id_alimento={id_alimento}) al pedido")
-            return True
-
-    except OperationalError as e:
-        print(f"Error al ejecutar la consulta: {e}")
-        return False
-
-def obtener_alimentos(id_orden):
-    try:
-        cur = conn.cursor()
-
         cur.execute("""
-            SELECT a.id_alimento, a.nombre_alimento, p.cantidad
-            FROM pedidos p
-            JOIN alimentos a ON p.id_alimento = a.id_alimento
-            WHERE p.id_orden = %s; """, (id_orden,))
+        SELECT 
+            alimentos.nombre_alimento AS nombre_alimento,
+            alimentos.precio_alimento AS precio_unitario,
+            pedidos.cantidad AS cantidad,
+            ROUND(CAST(alimentos.precio_alimento AS NUMERIC) * CAST(pedidos.cantidad AS NUMERIC), 2) AS subtotal_alimento,
+            ordenes.porcentaje_propina AS porcentaje_propina
+        FROM 
+            pedidos
+        JOIN 
+            alimentos ON pedidos.id_alimento = alimentos.id_alimento
+        JOIN 
+            ordenes ON pedidos.id_orden = ordenes.id_orden
+        WHERE 
+    pedidos.id_orden = %s;
 
-        # Obtener los resultados de la consulta
-        alimentos_pedidos = cur.fetchall()
+                    """)(id)
+        
+        pedido = cur.fetchall()
+        return pedido
+    except psycopg2.Error as e:
+        print("Error al obtener el menu:", e)
+        return None
 
-        # Cerrar el cursor y confirmar cambios en la base de datos
-        cur.close()
-        conn.commit()
+def obtener_subtotal_pedido(id):
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+        SELECT 
+            SUM(subtotal_alimento) AS subtotal_total
+        FROM (
+            SELECT 
+                ROUND(CAST(alimentos.precio_alimento as numeric) * CAST(pedidos.cantidad AS NUMERIC), 2) AS subtotal_alimento
+            FROM 
+                pedidos
+            JOIN 
+                alimentos ON pedidos.id_alimento = alimentos.id_alimento
+            WHERE 
+                pedidos.id_orden = %s
+        ) AS subtotales;
+                    
+                    """)(id)
+        
+        subtotal = cur.fetchall()
+        return subtotal
+    except psycopg2.Error as e:
+        print("Error al obtener el menu:", e)
+        return None
 
-    except OperationalError as e:
-        print(f"Error al conectar a la base de datos: {e}")
-
-
-    # Procesar los resultados y devolver el nombre del alimento y la cantidad pedida
-    resultado = [(id_alimento, nombre, cantidad) for id_alimento, nombre, cantidad in alimentos_pedidos]
-    #print(resultado)
-    return resultado
+def obtener_propina_pedido(id):
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+        SELECT porcentaje_propina
+        FROM ordenes
+        WHERE id_orden = %s;                    
+                    """)(id)
+        
+        propina = cur.fetchall()
+        return propina
+    except psycopg2.Error as e:
+        print("Error al obtener el menu:", e)
+        return None
+    
+def obtener_total_pedido(id):
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+        SELECT 
+        ((SELECT ROUND(SUM(alimentos.precio_alimento * pedidos.cantidad)) 
+        FROM pedidos 
+        JOIN alimentos ON pedidos.id_alimento = alimentos.id_alimento
+        WHERE pedidos.id_orden = 1)
+        +
+        (SELECT porcentaje_propina
+        FROM ordenes
+        WHERE id_orden = %s)
+        ) AS total_con_propina;
+                    
+                    """)(id)
+        
+        propina = cur.fetchall()
+        return propina
+    except psycopg2.Error as e:
+        print("Error al obtener el menu:", e)
+        return None
