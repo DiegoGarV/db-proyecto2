@@ -473,3 +473,165 @@ def obtener_alimentos(id_orden):
     resultado = [(id_alimento, nombre, cantidad) for id_alimento, nombre, cantidad in alimentos_pedidos]
     #print(resultado)
     return resultado
+
+def obtener_datos_pedido(id_orden):
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+        SELECT 
+            alimentos.nombre_alimento AS nombre_alimento,
+            alimentos.precio_alimento AS precio_unitario,
+            pedidos.cantidad AS cantidad,
+            ROUND(CAST(alimentos.precio_alimento AS NUMERIC) * CAST(pedidos.cantidad AS NUMERIC), 2) AS subtotal_alimento,
+            ordenes.porcentaje_propina AS porcentaje_propina
+        FROM 
+            pedidos
+        JOIN 
+            alimentos ON pedidos.id_alimento = alimentos.id_alimento
+        JOIN 
+            ordenes ON pedidos.id_orden = ordenes.id_orden
+        WHERE 
+    pedidos.id_orden = %s;
+
+                    """, (id_orden,))
+        
+        pedido = cur.fetchall()
+        return pedido
+    except psycopg2.Error as e:
+        print("Error al obtener el menu:", e)
+        return None
+
+def obtener_subtotal_pedido(id_orden):
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+        SELECT 
+            SUM(subtotal_alimento) AS subtotal_total
+        FROM (
+            SELECT 
+                ROUND(CAST(alimentos.precio_alimento as numeric) * CAST(pedidos.cantidad AS NUMERIC), 2) AS subtotal_alimento
+            FROM 
+                pedidos
+            JOIN 
+                alimentos ON pedidos.id_alimento = alimentos.id_alimento
+            WHERE 
+                pedidos.id_orden = %s
+        ) AS subtotales;
+                    
+                    """,  (id_orden,))
+        
+        subtotal = cur.fetchall()
+        return subtotal
+    except psycopg2.Error as e:
+        print("Error al obtener el menu:", e)
+        return None
+
+def obtener_propina_pedido(id_orden):
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+        SELECT porcentaje_propina
+        FROM ordenes
+        WHERE id_orden = %s;                    
+                    """, (id_orden,))
+        
+        propina = cur.fetchall()
+        return propina
+    except psycopg2.Error as e:
+        print("Error al obtener el menu:", e)
+        return None
+    
+def obtener_total_pedido(id_orden):
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+        SELECT 
+        ((SELECT ROUND(SUM(alimentos.precio_alimento * pedidos.cantidad)) 
+        FROM pedidos 
+        JOIN alimentos ON pedidos.id_alimento = alimentos.id_alimento
+        WHERE pedidos.id_orden = %s)
+                    """, (id_orden,))
+        
+        pago_tot = cur.fetchone()
+
+        cur.execute("""
+            UPDATE ordenes
+            SET
+            total_orden = %s,
+            WHERE id_orden = %s;
+                    """, (pago_tot,id_orden,))
+
+        return pago_tot
+    except psycopg2.Error as e:
+        print("Error al obtener el menu:", e)
+        return None
+    
+def QuejasPlato(fecha_inicio, fecha_fin):
+    try: 
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT 
+                m.nombre_plato AS plato,
+                COUNT(q.id_queja) AS total_quejas
+            FROM 
+                quejas q
+            JOIN 
+                menu m ON q.id_plato = m.id_plato
+            WHERE 
+                q.fecha_queja BETWEEN %s AND %s
+            GROUP BY 
+                m.nombre_plato;
+        """, (fecha_inicio, fecha_fin))
+        
+        resultados = cur.fetchall()
+        return resultados
+
+    except psycopg2.Error as e: 
+        print("Error al ejecutar el query", e)
+        return None
+
+def Eficiencia(fecha_inicio, fecha_fin):
+    try:
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT 
+                p.nombre_personal AS persona,
+                COUNT(e.id_encuesta) AS total_encuestas,
+                AVG(e.calificacion) AS promedio_calificacion
+            FROM 
+                encuestas e
+            JOIN 
+                personal p ON e.id_personal = p.id_personal
+            WHERE 
+                e.fecha_encuesta BETWEEN %s AND %s
+            GROUP BY 
+                p.nombre_personal;
+        """, (fecha_inicio, fecha_fin))
+        
+        resultados = cur.fetchall()
+        return resultados
+
+    except psycopg2.Error as e:
+        print("Error al ejecutar el query", e)
+        return None
+    
+def cerrar_orden(id_orden):
+    try:
+        cur = conn.cursor()
+
+        cur.execute("""
+            UPDATE ordenes
+            SET
+            fecha_cierre = CURRENT_TIMESTAMP,
+            estado_orden = 'cerrado'
+            WHERE id_orden = %s;
+        """, (id_orden))
+        
+        resultados = cur.fetchall()
+        return resultados
+
+    except psycopg2.Error as e:
+        print("Error al ejecutar el query", e)
+        return None

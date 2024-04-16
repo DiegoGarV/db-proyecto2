@@ -90,6 +90,23 @@ reportes.resizable(0,0)
 reportes.withdraw()
 reportes.protocol("WM_DELETE_WINDOW", quit)
 
+#---------------------- Pantalla Impresion Pedidos ----------------------
+imp_pedidos = tk.Toplevel()
+imp_pedidos.title("Impresion de Pedidos")
+imp_pedidos.geometry("1000x500")
+imp_pedidos.resizable(0,0)
+imp_pedidos.withdraw()
+imp_pedidos.protocol("WM_DELETE_WINDOW", quit)
+
+impPedtree = ttk.Treeview(imp_pedidos, columns=("Nombre Alimento", "Precio", "Cantidad", "Subtotal"))
+impPedtree.heading("Nombre Alimento", text="")
+impPedtree.heading("Precio", text="")
+impPedtree.heading("Cantidad", text="")
+impPedtree.heading("Subtotal", text="")
+
+impPedtree.column("#0", width=0)
+impPedtree.pack(padx=10, pady=10)
+
 #---------------------- Pantallas Reportes ----------------------
 r1 = tk.Toplevel()
 r2 = tk.Toplevel()
@@ -154,6 +171,16 @@ R4tree = ttk.Treeview(r4, columns=("Nombre Cliente"))
 R4tree.heading("#0", text="Quejas")
 R4tree.column("#0", width=200)
 R4tree.pack(padx=10, pady=10)
+
+R5tree = ttk.Treeview(r5, columns=("Nombre Plato"))
+R5tree.heading("#0", text="Queja")
+R5tree.column("#0", width=200)
+R5tree.pack(padx=10, pady=10)
+
+R6tree = ttk.Treeview(r6, columns=("Eficiencia del Mesero"))
+R6tree.heading("#0", text="Comentarios")
+R6tree.column("#0", width=200)
+R6tree.pack(padx=10, pady=10)
 
 #-------------------------- Pantalla Order Meals  --------------------------
 meals = tk.Toplevel()
@@ -229,17 +256,21 @@ def R2():
         messagebox.showerror("Error al ingresar las fechas", "La fecha inicial no puede ser posterior a la fecha final.")
 
 def R3():
-    con.PromedioComida(fecha_inicio=entry_fecha_inicioR3.get(), fecha_fin=entry_fecha_finR3.get())
-    
-    resultados = con.PromedioComida(fecha_inicio=entry_fecha_inicioR3.get(), fecha_fin=entry_fecha_finR3.get())
+    try:
+        con.PromedioComida(fecha_inicio=entry_fecha_inicioR3.get(), fecha_fin=entry_fecha_finR3.get())
+        
+        resultados = con.PromedioComida(fecha_inicio=entry_fecha_inicioR3.get(), fecha_fin=entry_fecha_finR3.get())
 
-    for item in R3tree.get_children():
-        R3tree.delete(item)
-    
-    contador = 0
-    for resultado in resultados: 
-        contador = contador +1
-        R3tree.insert("", "end", values=(resultado))
+        for item in R3tree.get_children():
+            R3tree.delete(item)
+        
+        contador = 0
+        for resultado in resultados: 
+            contador = contador +1
+            R3tree.insert("", "end", values=(resultado))
+    except:
+        messagebox.showerror("Error al hacer el reporte", "Al parecer no hay datos en estas fechas")
+        return False 
 
 def R4(): 
     con.QuejasXCliente(fecha_inicio=entry_fecha_inicioR4.get(), fecha_fin=entry_fecha_finR4.get())
@@ -253,6 +284,32 @@ def R4():
     for resultado in resultados:
         contador = contador + 1
         R4tree.insert("", "end", values=( resultado))
+
+def R5():
+    con.QuejasPlato(fecha_inicio=entry_fecha_inicioR5.get(), fecha_fin=entry_fecha_finR5.get())
+
+    resultados = con.QuejasPlato(fecha_inicio=entry_fecha_inicioR5.get(), fecha_fin=entry_fecha_finR5.get())
+
+    for item in R5tree.get_children():
+        R5tree.delete(item)
+        
+    contador = 0
+    for resultado in resultados:
+        contador = contador + 1
+        R5tree.insert("", "end", values=( resultado))
+    
+def R6():
+    con.Eficiencia(fecha_inicio=entry_fecha_inicioR6.get(), fecha_fin=entry_fecha_finR6.get())
+
+    resultados = con.Eficiencia(fecha_inicio=entry_fecha_inicioR6.get(), fecha_fin=entry_fecha_finR6.get())
+
+    for item in R6tree.get_children():
+        R6tree.delete(item)
+        
+    contador = 0
+    for resultado in resultados:
+        contador = contador + 1
+        R6tree.insert("", "end", values=( resultado))
 
 def Bar_marcar_listo():
     try:
@@ -417,6 +474,9 @@ def pedido_load():
     btn_pedidos_cerrados = tk.Button(btn_frame, text="Pedidos Cerrados", command=pedidos_cerrados_load)
     btn_pedidos_cerrados.pack(side=tk.LEFT, padx=10)
 
+    btn_imprimir_pedido = tk.Button(btn_frame, text= "Imprimir Pedido" ,command=ImpresionPedidos)
+    btn_imprimir_pedido.pack(side=tk.LEFT, padx=10)
+    
     # Crear un canvas dentro del frame principal
     canvas = tk.Canvas(main_frame)
     canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -452,12 +512,38 @@ def pedido_load():
             btn_editar = ttk.Button(card_frame, text="Editar", command=lambda id=pedido[0]: load_order_meals(id))
             btn_editar.pack(side=tk.LEFT, padx=10)
 
-            btn_imprimir = ttk.Button(card_frame, text="Imprimir", command=lambda id=pedido[0]: generate_factura(id))
+            btn_imprimir = ttk.Button(card_frame, text="Imprimir", command=lambda id=pedido[0]: ImpresionPedidos(id))
             btn_imprimir.pack(side=tk.RIGHT, padx=10)
 
 def tomaPedido_load():
     pedidos.withdraw()
     tomaPedidos.deiconify()
+
+    pedidos.withdraw()
+    imp_pedidos.deiconify()
+    
+    pedido = con.obtener_datos_pedido()
+    for item in impPedtree.get_children():
+        impPedtree.delete(item)
+        
+    contador = 0
+    for resultado in pedido: 
+        contador = contador +1
+        impPedtree.insert("", "end", values=(resultado))
+    impPedtree.insert("", "end")
+    impPedtree.insert("", "end")
+    
+    subtotal = con.obtener_subtotal_pedido()
+    impPedtree.insert("", "end", values=("","","Subotal:"))
+    impPedtree.insert("", "end", values=("","","",subtotal))
+    
+    propina = con.obtener_propina_pedido()
+    impPedtree.insert("", "end", values=("","","% Propina"))
+    impPedtree.insert("", "end", values=("","","", propina))
+    
+    total = con.obtener_total_pedido()
+    impPedtree.insert("", "end", values=("","", "Total Final"))
+    impPedtree.insert("", "end", values=("","", "", total))
 
 def rev_accion():
     global usuario_fin
@@ -540,7 +626,7 @@ def pedidos_cerrados_load():
             ttk.Label(card_frame, text=f"Fecha Cierre: {fecha2}").pack(anchor=tk.W)
             ttk.Label(card_frame, text=f"Número de Mesa: {pedido[4]}").pack(anchor=tk.W)
 
-            btn_imprimir = ttk.Button(card_frame, text="Imprimir", command=lambda id=pedido[0]: generate_factura(id))
+            btn_imprimir = ttk.Button(card_frame, text="Imprimir", command=lambda id=pedido[0]: ImpresionPedidos(id))
             btn_imprimir.pack(side=tk.BOTTOM, padx=10)
 
 def obtener_pedidos():
@@ -560,6 +646,33 @@ def obtener_menu():
         #print(data_menu)
     else:
         messagebox.showerror("Error", "Error al obtener los datos de las ordenes")
+
+def ImpresionPedidos(id_orden):
+    pedidos.withdraw()
+    imp_pedidos.deiconify()
+    
+    pedido = con.obtener_datos_pedido(id_orden)
+    for item in impPedtree.get_children():
+        impPedtree.delete(item)
+        
+    contador = 0
+    for resultado in pedido: 
+        contador = contador +1
+        impPedtree.insert("", "end", values=(resultado))
+    impPedtree.insert("", "end")
+    impPedtree.insert("", "end")
+    
+    subtotal = con.obtener_subtotal_pedido(id_orden)
+    impPedtree.insert("", "end", values=("","","Subotal:"))
+    impPedtree.insert("", "end", values=("","","",subtotal))
+    
+    propina = con.obtener_propina_pedido(id_orden)
+    impPedtree.insert("", "end", values=("","","% Propina"))
+    impPedtree.insert("", "end", values=("","","", propina))
+    
+    total = con.obtener_total_pedido(id_orden)
+    impPedtree.insert("", "end", values=("","", "Total Final"))
+    impPedtree.insert("", "end", values=("","", "", total))
 
 def load_order_meals(id_orden):
     
@@ -621,6 +734,11 @@ def add_meal(id_orden):
 def generate_factura(id):
     pass
 
+def btn_imprimir_pedido():
+    messagebox.showinfo("Exito", "Se imprimio el pedido!")
+    
+def btn_imprimir_factura():
+    messagebox.showinfo("Exito", "Se imprimio la factura!")
 #----------------------------- Log In -----------------------------------
 label_username_w = tk.Label(window, text="Usuario:")
 label_username_w.place(x = 440, y = 150)
@@ -765,6 +883,16 @@ btn_irSignin.place(x = 420, y = 305)
 btn_exit = tk.Button(tomaPedidos, text="Regresar", command=pedido_load)
 btn_exit.place(x = 520, y = 305)
 
+#----------------------------- Pantalla Imprimir Pedidos -----------------------------------
+btn_exit = tk.Button(imp_pedidos, text="Regresar", command=pedido_load)
+btn_exit.place(x = 390, y = 240)
+
+btn_imprimir_p = tk.Button(imp_pedidos, text="Imprimir Pedido", command=btn_imprimir_pedido)
+btn_imprimir_p.place(x=450, y = 240)
+
+btn_imprimir_f = tk.Button(imp_pedidos, text="Imprimir Factura", command=btn_imprimir_factura)
+btn_imprimir_f.place(x = 550, y=240)
+
 #----------------------------- R1 -----------------------------------
 label_fecha_inicioR1 = tk.Label(r1, text="Fecha Inicio (YYYY/MM/DD 00:00):")
 label_fecha_inicioR1.pack(pady=5)
@@ -832,5 +960,39 @@ btn_registroR4.pack(pady=5)
 
 btn_regresarR4 = tk.Button(r4, text="Regresar", command=Reportes)
 btn_regresarR4.pack(pady=5)
+
+#----------------------------- R5 -----------------------------------
+label_fecha_inicioR5 = tk.Label(r5, text="Fecha Inicio (YYYY/MM/DD 00:00):")
+label_fecha_inicioR5.pack(pady=5)
+entry_fecha_inicioR5 = tk.Entry(r5)
+entry_fecha_inicioR5.pack(pady=10)
+
+label_fecha_finR5 = tk.Label(r5, text="Fecha Fin (YYYY/MM/DD 00:00):")
+label_fecha_finR5.pack(pady=5)
+entry_fecha_finR5 = tk.Entry(r5)
+entry_fecha_finR5.pack(pady=5)
+
+btn_registroR5 = tk.Button(r5, text="Realizar Reporte", command=R5)
+btn_registroR5.pack(pady=5)
+
+btn_regresarR5 = tk.Button(r5, text="Regresar", command=Reportes)
+btn_regresarR5.pack(pady=5)
+
+#----------------------------- R6 -----------------------------------
+label_fecha_inicioR6 = tk.Label(r6, text="Fecha Inicio (YYYY/MM/DD 00:00):")
+label_fecha_inicioR6.pack(pady=5)
+entry_fecha_inicioR6 = tk.Entry(r6)
+entry_fecha_inicioR6.pack(pady=10)
+
+label_fecha_finR6 = tk.Label(r6, text="Fecha Fin (YYYY/MM/DD 00:00):")
+label_fecha_finR6.pack(pady=5)
+entry_fecha_finR6 = tk.Entry(r6)
+entry_fecha_finR6.pack(pady=5)
+
+btn_registroR6 = tk.Button(r6, text="Realizar Reporte", command=R6)
+btn_registroR6.pack(pady=5)
+
+btn_regresarR6 = tk.Button(r6, text="Regresar", command=Reportes)
+btn_regresarR6.pack(pady=5)
 
 window.mainloop()
