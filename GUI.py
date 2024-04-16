@@ -6,7 +6,6 @@ from datetime import datetime
 
 usuario_fin = ''
 data_pedidos = ''
-data_menu = ''
 
 #---------------------- Pantalla Log In ----------------------
 window = tk.Tk()
@@ -40,8 +39,8 @@ cocina.resizable (0,0)
 cocina.withdraw()
 cocina.protocol("WM_DELETE_WINDOW", quit)
 Kitchentree = ttk.Treeview(cocina, columns=("Nombre", "Num"))
-Kitchentree.heading("Nombre", text="Nombre plato")
-Kitchentree.heading("Num", text="Número cola")
+Kitchentree.heading("Num", text="Nombre plato")
+Kitchentree.heading("Nombre", text="Número cola")
 Kitchentree.column("#0", width=200)  
 Kitchentree.pack(padx=10, pady=10)
 
@@ -81,6 +80,23 @@ pedidosCerrados.geometry("1000x500")
 pedidosCerrados.resizable(0,0)
 pedidosCerrados.withdraw()
 pedidosCerrados.protocol("WM_DELETE_WINDOW", quit)
+
+#---------------------- Pantalla Impresion Pedidos ----------------------
+imp_pedidos = tk.Toplevel()
+imp_pedidos.title("Impresion de Pedidos")
+imp_pedidos.geometry("1000x500")
+imp_pedidos.resizable(0,0)
+imp_pedidos.withdraw()
+imp_pedidos.protocol("WM_DELETE_WINDOW", quit)
+
+impPedtree = ttk.Treeview(imp_pedidos, columns=("Nombre Alimento", "Precio", "Cantidad", "Subtotal"))
+impPedtree.heading("Nombre Alimento", text="")
+impPedtree.heading("Precio", text="")
+impPedtree.heading("Cantidad", text="")
+impPedtree.heading("Subtotal", text="")
+
+impPedtree.column("#0", width=0)
+impPedtree.pack(padx=10, pady=10)
 
 #---------------------- Pantalla Menu Reportes ----------------------
 reportes = tk.Toplevel()
@@ -126,12 +142,12 @@ r4.withdraw()
 r5.withdraw()
 r6.withdraw()
 
-r1.protocol("WM_DELETE_WINDOW", quit)
-r2.protocol("WM_DELETE_WINDOW", quit)
-r3.protocol("WM_DELETE_WINDOW", quit)
-r4.protocol("WM_DELETE_WINDOW", quit)
-r5.protocol("WM_DELETE_WINDOW", quit)
-r6.protocol("WM_DELETE_WINDOW", quit)
+# r1.protocol("WM_DELETE_WINDOW", quit)
+# r2.protocol("WM_DELETE_WINDOW", quit)
+# r3.protocol("WM_DELETE_WINDOW", quit)
+# r4.protocol("WM_DELETE_WINDOW", quit)
+# r5.protocol("WM_DELETE_WINDOW", quit)
+# r6.protocol("WM_DELETE_WINDOW", quit)
 
 R1tree = ttk.Treeview(r1, columns=("Plato", "Cantidad de Pedidos"))
 R1tree.heading("Plato", text="Nombre del plato")
@@ -164,32 +180,6 @@ R6tree = ttk.Treeview(r6, columns=("Eficiencia del Mesero"))
 R6tree.heading("#0", text="Comentarios")
 R6tree.column("#0", width=200)
 R6tree.pack(padx=10, pady=10)
-
-#-------------------------- Pantalla Order Meals  --------------------------
-meals = tk.Toplevel()
-meals.title("Edición de alimentos")
-meals.geometry("1000x500")
-meals.resizable(0,0)
-meals.withdraw()
-meals.protocol("WM_DELETE_WINDOW", quit)
-
-meals_frame = tk.Frame(meals)
-meals_frame.pack(fill=tk.BOTH, expand=True)
-
-Mealstree = ttk.Treeview(meals_frame, columns=("Nombre", "Cantidad"))
-Mealstree.heading("#0", text="ID")
-Mealstree.heading("Nombre", text="Nombre alimento")
-Mealstree.heading("Cantidad", text="Cantidad")
-Mealstree.column("#0", width=0)
-Mealstree.pack(side=tk.RIGHT, padx=10, pady=5, fill=tk.BOTH, expand=True)
-
-Menutree = ttk.Treeview(meals_frame, columns=("Nombre", "Tipo", "Precio"))
-Menutree.heading("#0", text="ID")
-Menutree.heading("Nombre", text="Nombre alimento")
-Menutree.heading("Tipo", text="Tipo alimento")
-Menutree.heading("Precio", text="Precio")
-Menutree.column("#0", width=0)
-Menutree.pack(side=tk.RIGHT, padx=10, pady=5, fill=tk.BOTH, expand=True)
 
 #---------------------- Funciones --------------------------
 def R1(): 
@@ -239,17 +229,21 @@ def R2():
         messagebox.showerror("Error al ingresar las fechas", "La fecha inicial no puede ser posterior a la fecha final.")
 
 def R3():
-    con.PromedioComida(fecha_inicio=entry_fecha_inicioR3.get(), fecha_fin=entry_fecha_finR3.get())
-    
-    resultados = con.PromedioComida(fecha_inicio=entry_fecha_inicioR3.get(), fecha_fin=entry_fecha_finR3.get())
+    try:
+        con.PromedioComida(fecha_inicio=entry_fecha_inicioR3.get(), fecha_fin=entry_fecha_finR3.get())
+        
+        resultados = con.PromedioComida(fecha_inicio=entry_fecha_inicioR3.get(), fecha_fin=entry_fecha_finR3.get())
 
-    for item in R3tree.get_children():
-        R3tree.delete(item)
-    
-    contador = 0
-    for resultado in resultados: 
-        contador = contador +1
-        R3tree.insert("", "end", values=(resultado))
+        for item in R3tree.get_children():
+            R3tree.delete(item)
+        
+        contador = 0
+        for resultado in resultados: 
+            contador = contador +1
+            R3tree.insert("", "end", values=(resultado))
+    except:
+        messagebox.showerror("Error al hacer el reporte", "Al parecer no hay datos en estas fechas")
+        return False 
 
 def R4(): 
     con.QuejasXCliente(fecha_inicio=entry_fecha_inicioR4.get(), fecha_fin=entry_fecha_finR4.get())
@@ -264,7 +258,7 @@ def R4():
         contador = contador + 1
         R4tree.insert("", "end", values=( resultado))
 
-def R5(): 
+def R5():
     con.QuejasPlato(fecha_inicio=entry_fecha_inicioR5.get(), fecha_fin=entry_fecha_finR5.get())
 
     resultados = con.QuejasPlato(fecha_inicio=entry_fecha_inicioR5.get(), fecha_fin=entry_fecha_finR5.get())
@@ -276,8 +270,8 @@ def R5():
     for resultado in resultados:
         contador = contador + 1
         R5tree.insert("", "end", values=( resultado))
-
-def R6(): 
+    
+def R6():
     con.Eficiencia(fecha_inicio=entry_fecha_inicioR6.get(), fecha_fin=entry_fecha_finR6.get())
 
     resultados = con.Eficiencia(fecha_inicio=entry_fecha_inicioR6.get(), fecha_fin=entry_fecha_finR6.get())
@@ -289,7 +283,7 @@ def R6():
     for resultado in resultados:
         contador = contador + 1
         R6tree.insert("", "end", values=( resultado))
-
+    
 def Bar_marcar_listo():
     try:
         row = Bartree.focus()
@@ -370,7 +364,7 @@ def login():
         messagebox.showerror("Error de inicio de sesión", "Usuario o contraseña incorrectos")
         
 def Reportes():
-    main_menu_window.withdraw()
+    signin.withdraw()
     r1.withdraw()
     r2.withdraw()
     r3.withdraw()
@@ -380,6 +374,7 @@ def Reportes():
     reportes.deiconify()
 
 def open_main_menu(): 
+    signin.withdraw()
     reportes.withdraw()
     bar.withdraw()
     cocina.withdraw()
@@ -423,7 +418,6 @@ def pedido_load():
     main_menu_window.withdraw()
     pedidosCerrados.withdraw()
     tomaPedidos.withdraw()
-    meals.withdraw()
     pedidos.deiconify()
 
     # Obtener los datos de los pedidos
@@ -452,6 +446,9 @@ def pedido_load():
     # Botón para ver pedidos cerrados
     btn_pedidos_cerrados = tk.Button(btn_frame, text="Pedidos Cerrados", command=pedidos_cerrados_load)
     btn_pedidos_cerrados.pack(side=tk.LEFT, padx=10)
+    
+    btn_imprimir_pedidos = tk.Button(btn_frame, text= "Imprimir Pedido" ,command=ImpresionPedidos)
+    btn_imprimir_pedidos.pack(side=tk.LEFT, padx=10)
 
     # Crear un canvas dentro del frame principal
     canvas = tk.Canvas(main_frame)
@@ -475,7 +472,7 @@ def pedido_load():
         card_frame = ttk.Frame(pedidos_frame, relief=tk.RAISED, borderwidth=2, padding=(10, 10))
         card_frame.pack(pady=10, fill=tk.BOTH)
 
-        fecha1 = pedido[8].strftime("%Y/%m/%d %H:%M")
+        fecha1 = pedido[8].strftime("%Y/%m/%d %H:%M") if pedido[8] is not None else '---'
         fecha2 = pedido[9].strftime("%Y/%m/%d %H:%M") if pedido[9] is not None else '---'
 
         # Etiquetas con datos y Botones para Editar e Imprimir
@@ -485,16 +482,43 @@ def pedido_load():
             ttk.Label(card_frame, text=f"Fecha Cierre: {fecha2}").pack(anchor=tk.W)
             ttk.Label(card_frame, text=f"Número de Mesa: {pedido[4]}").pack(anchor=tk.W)
             
-            btn_editar = ttk.Button(card_frame, text="Editar", command=lambda id=pedido[0]: load_order_meals(id))
+            btn_editar = ttk.Button(card_frame, text="Editar", command=lambda id=pedido[0]: open_order_details(id))
             btn_editar.pack(side=tk.LEFT, padx=10)
 
-            btn_imprimir = ttk.Button(card_frame, text="Imprimir", command=lambda id=pedido[0]: generate_factura(id))
+            btn_imprimir = ttk.Button(card_frame, text="Imprimir", command=lambda id=pedido[0]: ImpresionPedidos(id))
             btn_imprimir.pack(side=tk.RIGHT, padx=10)
 
 def tomaPedido_load():
     pedidos.withdraw()
     tomaPedidos.deiconify()
 
+def ImpresionPedidos(id):
+    pedidos.withdraw()
+    imp_pedidos.deiconify()
+    
+    pedido = con.obtener_datos_pedido(id)
+    for item in impPedtree.get_children():
+        impPedtree.delete(item)
+        
+    contador = 0
+    for resultado in pedido: 
+        contador = contador +1
+        impPedtree.insert("", "end", values=(resultado))
+    impPedtree.insert("", "end")
+    impPedtree.insert("", "end")
+    
+    subtotal = con.obtener_subtotal_pedido(id)
+    impPedtree.insert("", "end", values=("","","Subotal:"))
+    impPedtree.insert("", "end", values=("","","",subtotal))
+    
+    propina = con.obtener_propina_pedido(id)
+    impPedtree.insert("", "end", values=("","","% Propina"))
+    impPedtree.insert("", "end", values=("","","", propina))
+    
+    total = con.obtener_total_pedido(id)
+    impPedtree.insert("", "end", values=("","", "Total Final"))
+    impPedtree.insert("", "end", values=("","", "", total))
+    
 def rev_accion():
     global usuario_fin
     #print(usuario_fin)
@@ -576,7 +600,7 @@ def pedidos_cerrados_load():
             ttk.Label(card_frame, text=f"Fecha Cierre: {fecha2}").pack(anchor=tk.W)
             ttk.Label(card_frame, text=f"Número de Mesa: {pedido[4]}").pack(anchor=tk.W)
 
-            btn_imprimir = ttk.Button(card_frame, text="Imprimir", command=lambda id=pedido[0]: generate_factura(id))
+            btn_imprimir = ttk.Button(card_frame, text="Imprimir", command=lambda id=pedido[0]: ImpresionPedidos(id))
             btn_imprimir.pack(side=tk.BOTTOM, padx=10)
 
 def obtener_pedidos():
@@ -588,75 +612,17 @@ def obtener_pedidos():
     else:
         messagebox.showerror("Error", "Error al obtener los datos de las ordenes")
 
-def obtener_menu():
-    global data_menu
-    resultado = con.obtener_menu()
-    if resultado is not None and resultado:
-        data_menu = resultado
-        #print(data_menu)
-    else:
-        messagebox.showerror("Error", "Error al obtener los datos de las ordenes")
-
-def load_order_meals(id_orden):
-    
-    pedidos.withdraw()
-    meals.deiconify()
-    obtener_menu()
-
-    resultados = con.obtener_alimentos(id_orden)
-
-    for item in Mealstree.get_children():
-        Mealstree.delete(item)
-
-    for resultado in resultados:
-        Mealstree.insert("", "end", text=resultado[0], values=(resultado[1], resultado[2],))
-
-    for item in Menutree.get_children():
-        Menutree.delete(item)
-
-    for data in data_menu:
-        Menutree.insert("", "end", text=data[0], values=(data[2], data[1],("Q "+str(data[4])),))
-
-    if not hasattr(load_order_meals, "buttons_created"):
-        Mbutton_frame = tk.Frame(meals)
-        Mbutton_frame.pack(side=tk.TOP, pady=10)
-
-        btn_add_meal = ttk.Button(Mbutton_frame, text="Agregar alimento", command=lambda: add_meal(id_orden))
-        btn_add_meal.pack(side=tk.LEFT, padx=10)
-
-        btn_back = ttk.Button(Mbutton_frame, text="Regresar", command=pedido_load)
-        btn_back.pack(side=tk.LEFT, padx=10)
-
-        btn_delete_meal = ttk.Button(Mbutton_frame, text="Eliminar alimento", command=lambda: elim_meal(id_orden))
-        btn_delete_meal.pack(side=tk.LEFT, padx=10)
-
-        load_order_meals.buttons_created = True
-
-def elim_meal(id_orden):
-    focused_item = Mealstree.focus()
-    if focused_item:
-        id_alimento = Mealstree.item(focused_item, "text")
-        if con.elim_meal(id_orden, id_alimento):
-            load_order_meals(id_orden)
-        else:
-            messagebox.showerror("Error al eliminar dato", "Parece que hubo un error al eliminar el dato")
-    else:
-        messagebox.showerror("Error al marcar como listo", "Porfavor seleccione un registro")
-
-def add_meal(id_orden):
-    focused_item = Menutree.focus()
-    if focused_item:
-        id_alimento = Menutree.item(focused_item, "text")
-        if con.add_meal(id_orden, id_alimento):
-            load_order_meals(id_orden)
-        else:
-            messagebox.showerror("Error al eliminar dato", "Parece que hubo un error al eliminar el dato")
-    else:
-        messagebox.showerror("Error al marcar como listo", "Porfavor seleccione un registro")
+def open_order_details(id):
+    pass
 
 def generate_factura(id):
     pass
 
+def btn_imprimir_pedido():
+    messagebox.showinfo("Exito", "Se imprimio el pedido!")
+    
+def btn_imprimir_factura():
+    messagebox.showinfo("Exito", "Se imprimio la factura!")
 #----------------------------- Log In -----------------------------------
 label_username_w = tk.Label(window, text="Usuario:")
 label_username_w.place(x = 440, y = 150)
@@ -668,10 +634,8 @@ label_password_w.place(x=440, y = 190)
 entry_password_w = tk.Entry(window, show= "*")
 entry_password_w.place(x=440, y = 210)
 
-
 btn_login = tk.Button(window, text="Iniciar Sesión", command=login)
 btn_login.place(x= 420, y = 250)
-
 
 btn_irSignin = tk.Button(window, text = "Registrarse", command=signinWindow)
 btn_irSignin.place(x = 510, y = 250)
@@ -705,7 +669,6 @@ entry_Confpassword_sn.pack(pady=5)
 btn_irSignin = tk.Button(signin, text = "Registrarse", command=Signin)
 btn_irSignin.place(x = 420, y = 305)
 
-
 btn_exit = tk.Button(signin, text="Regresar", command=return_to_login)
 btn_exit.place(x = 520, y = 305)
 
@@ -718,11 +681,9 @@ btn_exit = tk.Button(main_menu_window, text="Regresar", command=return_to_login)
 btn_exit.place(x = 460, y = 250)
 btn_exit.config(font=("Arial", 10, "bold"))
 
-
 btn_cocina = tk.Button(main_menu_window, text="  Cocina ", command=PantCocina)
 btn_cocina.place(x = 510, y = 150)
 btn_cocina.config(font=("Arial", 10, "bold"))
-
 
 btn_bar = tk.Button(main_menu_window, text="    Bar    ", command=PantBar)
 btn_bar.place(x = 410, y = 200)
@@ -758,8 +719,20 @@ btn_R6.place(x=530, y=200)
 btn_Creg = tk.Button(reportes, text="Regresar", command=open_main_menu, width=20, height=2, font=("Arial", 10, "bold"))
 btn_Creg.place(x=430, y=250)
 
-#----------------------------- Cocina -----------------------------------
+btn_Creg = tk.Button(r1, text="Regresar", command=Reportes)
+btn_Creg.pack()
+btn_Creg = tk.Button(r2, text="Regresar", command=Reportes)
+btn_Creg.pack()
+btn_Creg = tk.Button(r3, text="Regresar", command=Reportes)
+btn_Creg.pack()
+btn_Creg = tk.Button(r4, text="Regresar", command=Reportes)
+btn_Creg.pack()
+btn_Creg = tk.Button(r5, text="Regresar", command=Reportes)
+btn_Creg.pack()
+btn_Creg = tk.Button(r6, text="Regresar", command=Reportes)
+btn_Creg.pack()
 
+#----------------------------- Cocina -----------------------------------
 btn_Creg = tk.Button(cocina, text="Regresar", command=open_main_menu)
 btn_Creg.place(x= 420, y = 250)
 
@@ -767,7 +740,6 @@ btn_Clisto = tk.Button(cocina, text = "Marcar como Listo", command=Cocina_marcar
 btn_Clisto.place(x= 520, y = 250)
 
 #----------------------------- Bar -----------------------------------
-
 btn_Breg = tk.Button(bar, text="Regresar", command=open_main_menu)
 btn_Breg.place(x= 420, y = 250)
 
@@ -801,6 +773,15 @@ btn_irSignin.place(x = 420, y = 305)
 btn_exit = tk.Button(tomaPedidos, text="Regresar", command=pedido_load)
 btn_exit.place(x = 520, y = 305)
 
+#----------------------------- Pantalla Imprimir Pedidos -----------------------------------
+btn_exit = tk.Button(imp_pedidos, text="Regresar", command=pedido_load)
+btn_exit.place(x = 390, y = 240)
+
+btn_imprimir_p = tk.Button(imp_pedidos, text="Imprimir Pedido", command=btn_imprimir_pedido)
+btn_imprimir_p.place(x=450, y = 240)
+
+btn_imprimir_f = tk.Button(imp_pedidos, text="Imprimir Factura", command=btn_imprimir_factura)
+btn_imprimir_f.place(x = 550, y=240)
 #----------------------------- R1 -----------------------------------
 label_fecha_inicioR1 = tk.Label(r1, text="Fecha Inicio (YYYY/MM/DD 00:00):")
 label_fecha_inicioR1.pack(pady=5)
@@ -902,4 +883,5 @@ btn_registroR6.pack(pady=5)
 
 btn_regresarR6 = tk.Button(r6, text="Regresar", command=Reportes)
 btn_regresarR6.pack(pady=5)
+
 window.mainloop()
