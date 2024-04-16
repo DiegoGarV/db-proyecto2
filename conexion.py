@@ -387,7 +387,7 @@ def obtener_menu():
         print("Error al obtener el menu:", e)
         return None
     
-def obtener_datos_pedido(id):
+def obtener_datos_pedido():
     try:
         cur = conn.cursor()
         cur.execute("""
@@ -404,9 +404,9 @@ def obtener_datos_pedido(id):
         JOIN 
             ordenes ON pedidos.id_orden = ordenes.id_orden
         WHERE 
-    pedidos.id_orden = %s;
+    pedidos.id_orden = 1;
 
-                    """)(id)
+                    """)
         
         pedido = cur.fetchall()
         return pedido
@@ -414,7 +414,7 @@ def obtener_datos_pedido(id):
         print("Error al obtener el menu:", e)
         return None
 
-def obtener_subtotal_pedido(id):
+def obtener_subtotal_pedido():
     try:
         cur = conn.cursor()
         cur.execute("""
@@ -428,10 +428,10 @@ def obtener_subtotal_pedido(id):
             JOIN 
                 alimentos ON pedidos.id_alimento = alimentos.id_alimento
             WHERE 
-                pedidos.id_orden = %s
+                pedidos.id_orden = 1
         ) AS subtotales;
                     
-                    """)(id)
+                    """)
         
         subtotal = cur.fetchall()
         return subtotal
@@ -439,14 +439,14 @@ def obtener_subtotal_pedido(id):
         print("Error al obtener el menu:", e)
         return None
 
-def obtener_propina_pedido(id):
+def obtener_propina_pedido():
     try:
         cur = conn.cursor()
         cur.execute("""
         SELECT porcentaje_propina
         FROM ordenes
-        WHERE id_orden = %s;                    
-                    """)(id)
+        WHERE id_orden = 1;                    
+                    """)
         
         propina = cur.fetchall()
         return propina
@@ -454,7 +454,7 @@ def obtener_propina_pedido(id):
         print("Error al obtener el menu:", e)
         return None
     
-def obtener_total_pedido(id):
+def obtener_total_pedido():
     try:
         cur = conn.cursor()
         cur.execute("""
@@ -466,13 +466,64 @@ def obtener_total_pedido(id):
         +
         (SELECT porcentaje_propina
         FROM ordenes
-        WHERE id_orden = %s)
+        WHERE id_orden = 1)
         ) AS total_con_propina;
                     
-                    """)(id)
+                    """)
         
         propina = cur.fetchall()
         return propina
     except psycopg2.Error as e:
         print("Error al obtener el menu:", e)
+        return None
+    
+def QuejasPlato(fecha_inicio, fecha_fin):
+    try: 
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT 
+                m.nombre_plato AS plato,
+                COUNT(q.id_queja) AS total_quejas
+            FROM 
+                quejas q
+            JOIN 
+                menu m ON q.id_plato = m.id_plato
+            WHERE 
+                q.fecha_queja BETWEEN %s AND %s
+            GROUP BY 
+                m.nombre_plato;
+        """, (fecha_inicio, fecha_fin))
+        
+        resultados = cur.fetchall()
+        return resultados
+
+    except psycopg2.Error as e: 
+        print("Error al ejecutar el query", e)
+        return None
+
+def Eficiencia(fecha_inicio, fecha_fin):
+    try:
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT 
+                p.nombre_personal AS persona,
+                COUNT(e.id_encuesta) AS total_encuestas,
+                AVG(e.calificacion) AS promedio_calificacion
+            FROM 
+                encuestas e
+            JOIN 
+                personal p ON e.id_personal = p.id_personal
+            WHERE 
+                e.fecha_encuesta BETWEEN %s AND %s
+            GROUP BY 
+                p.nombre_personal;
+        """, (fecha_inicio, fecha_fin))
+        
+        resultados = cur.fetchall()
+        return resultados
+
+    except psycopg2.Error as e:
+        print("Error al ejecutar el query", e)
         return None
